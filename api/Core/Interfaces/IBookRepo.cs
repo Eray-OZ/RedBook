@@ -5,4 +5,5 @@ namespace api.Core.Interfaces;
 public interface IBookRepo
 {
     Task<List<BookEntity>> GetAllAsync();
+    Task<BookEntity> CreateAsync(BookEntity bookEntity);
 }

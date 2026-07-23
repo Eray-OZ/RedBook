@@ -1,8 +1,10 @@
+using api.Application.DTOs.Book;
+using api.Application.Mappings;
 using api.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ap.Controllers
+namespace api.Controllers
 {
     [Route("api/book")]
     [ApiController]
@@ -20,9 +22,20 @@ namespace ap.Controllers
         public async Task<IActionResult> Get()
         {
             var books = await _bookRepo.GetAllAsync();
-            return Ok(books);
+            var booksDto = books.Select(b => b.ToBookDto());
+            return Ok(booksDto);
         }
 
+
+
+        [HttpPost]
+        public async Task<IActionResult> Create([FromBody] CreateBookDto bookDto)
+        {
+            if(!ModelState.IsValid) return BadRequest(ModelState);
+            var bookEntity = bookDto.ToBookFromCreateDto();
+            await _bookRepo.CreateAsync(bookEntity);
+            return Ok(bookEntity);
+        }
 
 
     }
