@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { CreateBookDto, ItemType } from '../types/book';
-import { PlusCircle, Book, User, Calendar, FileText, Link, Hash, ArrowLeft } from 'lucide-react';
+import { PlusCircle, Book, User, Calendar, FileText, Link as LinkIcon, Hash, ArrowLeft, Image as ImageIcon } from 'lucide-react';
 
 interface AddBookFormProps {
   onSubmit: (bookDto: CreateBookDto) => Promise<void>;
@@ -63,198 +63,217 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({
     try {
       await onSubmit(dto);
     } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to create book. Please check server connection.');
+      setErrorMsg(err.message || 'Failed to archive manuscript. Check connection.');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: '800px', margin: '0 auto' }}>
-      <div className="section-title-bar">
+    <div className="max-w-4xl mx-auto pb-16 space-y-6">
+      {/* Header Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#d4af37]/20 pb-4">
         <div>
           <button
-            className="btn btn-secondary"
             onClick={onCancel}
-            style={{ marginBottom: '1rem', padding: '0.4rem 0.85rem', fontSize: '0.85rem' }}
+            className="flex items-center gap-2 text-[#d4af37] font-label text-xs font-bold uppercase tracking-widest hover:text-[#ffb4ac] transition-colors mb-2 ink-bleed-hover"
           >
             <ArrowLeft size={16} />
-            <span>Back to Library</span>
+            <span>Return to Archive</span>
           </button>
-          <h1 className="section-title">Add New Book</h1>
-          <p className="section-subtitle">
-            Enter book details to save to your database collection.
+          <h1 className="font-display text-3xl font-black text-[#e4e2e1] uppercase tracking-wider italic">
+            Inscribe New Folio
+          </h1>
+          <p className="font-label text-xs text-[#e4e2e1]/70 uppercase tracking-widest mt-1">
+            Record title, scribe metadata, and medium into the master library catalog.
           </p>
         </div>
       </div>
 
-      <div className="glass-panel" style={{ padding: '2rem' }}>
+      {/* Form Container (Parchment Folio) */}
+      <div className="parchment-card p-6 sm:p-10 rounded-sm border-2 border-[#d4af37] shadow-2xl">
         {errorMsg && (
-          <div
-            style={{
-              background: 'rgba(244, 63, 94, 0.15)',
-              border: '1px solid rgba(244, 63, 94, 0.4)',
-              color: '#fca5a5',
-              padding: '0.85rem 1.25rem',
-              borderRadius: 'var(--radius-sm)',
-              marginBottom: '1.5rem',
-              fontSize: '0.9rem',
-            }}
-          >
+          <div className="bg-[#9e1b1b]/20 border-2 border-[#9e1b1b] text-[#9e1b1b] p-4 rounded-sm mb-6 font-body font-bold text-sm">
             {errorMsg}
           </div>
         )}
 
-        <form onSubmit={handleSubmit}>
-          {/* Main Book Info */}
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
-            <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Book size={14} className="text-violet-400" />
-                Book Title *
-              </label>
-              <input
-                type="text"
-                className="text-input"
-                placeholder="e.g. The Lord of the Rings"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-              />
-            </div>
+        <form onSubmit={handleSubmit} className="space-y-8">
+          {/* Section 1: Title & Type */}
+          <div className="space-y-4">
+            <h3 className="font-display text-xl font-bold text-[#383014] border-b border-[#383014]/20 pb-2 italic">
+              1. Folio Specifications
+            </h3>
 
-            <div className="input-group">
-              <label className="input-label">Format / Item Type *</label>
-              <select
-                className="select-input"
-                value={itemType}
-                onChange={(e) => setItemType(e.target.value as ItemType)}
-              >
-                <option value="Book" style={{ background: '#0f172a' }}>Book (Paperback/Hardcover)</option>
-                <option value="EBook" style={{ background: '#0f172a' }}>EBook</option>
-                <option value="AudioBook" style={{ background: '#0f172a' }}>AudioBook</option>
-                <option value="Magazine" style={{ background: '#0f172a' }}>Magazine</option>
-                <option value="Journal" style={{ background: '#0f172a' }}>Journal</option>
-                <option value="Comic" style={{ background: '#0f172a' }}>Comic</option>
-                <option value="Other" style={{ background: '#0f172a' }}>Other</option>
-              </select>
-            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              <div className="sm:col-span-2 space-y-1">
+                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014] flex items-center gap-1.5">
+                  <Book size={14} className="text-[#9e1b1b]" /> Title of Manuscript *
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. The Name of the Rose"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                  required
+                />
+              </div>
 
-            <div className="input-group">
-              <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <FileText size={14} />
-                Default Page Count *
-              </label>
-              <input
-                type="number"
-                min="1"
-                className="text-input"
-                value={pageCount}
-                onChange={(e) => setPageCount(Number(e.target.value))}
-                required
-              />
-            </div>
+              <div className="space-y-1">
+                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014]">
+                  Medium Format (ItemType) *
+                </label>
+                <select
+                  value={itemType}
+                  onChange={(e) => setItemType(e.target.value as ItemType)}
+                  className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                >
+                  <option value="Book">Book (Hardcover/Paperback)</option>
+                  <option value="EBook">EBook</option>
+                  <option value="AudioBook">AudioBook</option>
+                  <option value="Magazine">Magazine</option>
+                  <option value="Journal">Academic Journal</option>
+                  <option value="Comic">Comic / Graphic Novel</option>
+                  <option value="Other">Other Archives</option>
+                </select>
+              </div>
 
-            <div className="input-group">
-              <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Calendar size={14} />
-                Publication Date *
-              </label>
-              <input
-                type="date"
-                className="text-input"
-                value={publishYear}
-                onChange={(e) => setPublishYear(e.target.value)}
-                required
-              />
-            </div>
+              <div className="space-y-1">
+                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014] flex items-center gap-1.5">
+                  <FileText size={14} className="text-[#9e1b1b]" /> Total Page Count *
+                </label>
+                <input
+                  type="number"
+                  min="1"
+                  value={pageCount}
+                  onChange={(e) => setPageCount(Number(e.target.value))}
+                  className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                  required
+                />
+              </div>
 
-            <div className="input-group">
-              <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Hash size={14} />
-                ISBN Number (Optional)
-              </label>
-              <input
-                type="text"
-                className="text-input"
-                placeholder="e.g. 978-0547928227"
-                value={isbn}
-                onChange={(e) => setIsbn(e.target.value)}
-              />
-            </div>
-          </div>
+              <div className="space-y-1">
+                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014] flex items-center gap-1.5">
+                  <Calendar size={14} className="text-[#9e1b1b]" /> Publication Date *
+                </label>
+                <input
+                  type="date"
+                  value={publishYear}
+                  onChange={(e) => setPublishYear(e.target.value)}
+                  className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                  required
+                />
+              </div>
 
-          <hr style={{ border: 'none', borderTop: '1px solid var(--border-subtle)', margin: '1.5rem 0' }} />
-
-          {/* Author Details */}
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: 'var(--accent-primary)' }}>Author Information</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
-            <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <User size={14} />
-                Author Name *
-              </label>
-              <input
-                type="text"
-                className="text-input"
-                placeholder="e.g. J.R.R. Tolkien"
-                value={authorName}
-                onChange={(e) => setAuthorName(e.target.value)}
-                required
-              />
-            </div>
-
-            <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="input-label">Author Biography (Optional)</label>
-              <textarea
-                className="textarea-input"
-                rows={3}
-                placeholder="Short bio or background about the author..."
-                value={authorBio}
-                onChange={(e) => setAuthorBio(e.target.value)}
-              />
+              <div className="space-y-1">
+                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014] flex items-center gap-1.5">
+                  <Hash size={14} className="text-[#9e1b1b]" /> ISBN Code (Optional)
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. 978-0141187761"
+                  value={isbn}
+                  onChange={(e) => setIsbn(e.target.value)}
+                  className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                />
+              </div>
             </div>
           </div>
 
-          <hr style={{ border: 'none', borderTop: '1px solid var(--border-subtle)', margin: '1.5rem 0' }} />
+          {/* Section 2: Author Details */}
+          <div className="space-y-4">
+            <h3 className="font-display text-xl font-bold text-[#383014] border-b border-[#383014]/20 pb-2 italic">
+              2. Scribe & Author Attribution
+            </h3>
 
-          {/* Image & External IDs */}
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', color: 'var(--accent-secondary)' }}>Media & Identifiers</h3>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.25rem' }}>
-            <div className="input-group" style={{ gridColumn: '1 / -1' }}>
-              <label className="input-label" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                <Link size={14} />
-                Cover Image URL (Optional)
+            <div className="space-y-4">
+              <div className="space-y-1">
+                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014] flex items-center gap-1.5">
+                  <User size={14} className="text-[#9e1b1b]" /> Author Full Name *
+                </label>
+                <input
+                  type="text"
+                  placeholder="e.g. Umberto Eco"
+                  value={authorName}
+                  onChange={(e) => setAuthorName(e.target.value)}
+                  className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014]">
+                  Author Biography (Optional)
+                </label>
+                <textarea
+                  rows={3}
+                  placeholder="Historical details, biographical background, or notable achievements..."
+                  value={authorBio}
+                  onChange={(e) => setAuthorBio(e.target.value)}
+                  className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Media Cover */}
+          <div className="space-y-4">
+            <h3 className="font-display text-xl font-bold text-[#383014] border-b border-[#383014]/20 pb-2 italic">
+              3. Visual Illumination & Cover Art
+            </h3>
+
+            <div className="space-y-3">
+              <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014] flex items-center gap-1.5">
+                <LinkIcon size={14} className="text-[#9e1b1b]" /> Cover Image URL (Optional)
               </label>
               <input
                 type="url"
-                className="text-input"
-                placeholder="https://example.com/cover.jpg"
+                placeholder="https://images.unsplash.com/photo-..."
                 value={coverImageUrl}
                 onChange={(e) => setCoverImageUrl(e.target.value)}
+                className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
               />
-            </div>
 
-            {coverImageUrl && (
-              <div style={{ gridColumn: '1 / -1', marginTop: '0.5rem' }}>
-                <span className="input-label" style={{ display: 'block', marginBottom: '0.5rem' }}>Cover Image Preview:</span>
-                <img
-                  src={coverImageUrl}
-                  alt="Preview"
-                  style={{ height: '140px', borderRadius: 'var(--radius-sm)', objectFit: 'cover', border: '1px solid var(--border-subtle)' }}
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
-                />
-              </div>
-            )}
+              {coverImageUrl && (
+                <div className="mt-4 p-3 bg-[#1a1512] rounded-sm border border-[#d4af37]/40 flex items-center gap-4">
+                  <div className="w-20 h-28 overflow-hidden rounded-sm border border-[#d4af37]">
+                    <img
+                      src={coverImageUrl}
+                      alt="Cover Preview"
+                      className="w-full h-full object-cover"
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  </div>
+                  <div>
+                    <span className="font-label text-xs text-[#d4af37] font-bold uppercase tracking-widest flex items-center gap-1">
+                      <ImageIcon size={14} /> Illuminating Art Preview
+                    </span>
+                    <p className="font-body text-xs text-[#f4ecd8]/70 mt-1">
+                      Visual asset loaded cleanly. Will display on folio card.
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
-          <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '2rem' }}>
-            <button type="button" className="btn btn-secondary" onClick={onCancel}>
-              Cancel
+          {/* Form Actions */}
+          <div className="pt-6 border-t border-[#383014]/20 flex items-center justify-end gap-4">
+            <button
+              type="button"
+              onClick={onCancel}
+              className="px-6 py-3 font-label text-xs font-bold uppercase tracking-widest bg-[#1a1512] text-[#d4af37] border border-[#d4af37]/40 hover:border-[#d4af37] rounded-sm transition-colors"
+            >
+              Discard Entry
             </button>
-            <button type="submit" className="btn btn-primary" disabled={isSubmitting}>
-              <PlusCircle size={18} />
-              <span>{isSubmitting ? 'Saving Book...' : 'Save Book to Library'}</span>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="illuminated-btn"
+            >
+              <PlusCircle size={16} />
+              <span>{isSubmitting ? 'Inscribing...' : 'Inscribe Title'}</span>
             </button>
           </div>
         </form>

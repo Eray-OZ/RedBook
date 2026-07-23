@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { Book } from '../types/book';
-import { Search, Filter, BookOpen, User, Calendar, FileText, PlusCircle, Sparkles } from 'lucide-react';
+import { Search, BookOpen, User, Calendar, FileText, PlusCircle, Sparkles, Headphones, BookMarked, Layers } from 'lucide-react';
 
 interface BookListProps {
   books: Book[];
@@ -16,138 +16,200 @@ export const BookList: React.FC<BookListProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedType, setSelectedType] = useState<string>('ALL');
 
-  const getItemTypeBadgeClass = (type: string) => {
-    switch (type.toLowerCase()) {
-      case 'book': return 'badge-book';
-      case 'ebook': return 'badge-ebook';
-      case 'audiobook': return 'badge-audiobook';
-      case 'magazine': return 'badge-magazine';
-      case 'journal': return 'badge-journal';
-      case 'comic': return 'badge-comic';
-      default: return 'badge-book';
-    }
-  };
-
   const filteredBooks = books.filter((book) => {
     const matchesSearch =
       book.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       (book.authorName || book.author?.name || '').toLowerCase().includes(searchQuery.toLowerCase());
-    
+
     const matchesType =
       selectedType === 'ALL' || book.itemType.toString().toUpperCase() === selectedType.toUpperCase();
 
     return matchesSearch && matchesType;
   });
 
+  const totalPages = books.reduce((sum, b) => sum + (b.defaultPageCount || 0), 0);
+  const audioCount = books.filter((b) => String(b.itemType).toLowerCase() === 'audiobook').length;
+  const comicCount = books.filter((b) => String(b.itemType).toLowerCase() === 'comic').length;
+
   return (
-    <div>
-      <div className="section-title-bar">
-        <div>
-          <h1 className="section-title">My Book Library</h1>
-          <p className="section-subtitle">
-            Manage your personal catalog, track page counts, and explore collection stats.
+    <div className="space-y-12 pb-16">
+      {/* Welcome Banner */}
+      <section className="relative">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h1 className="font-display text-4xl md:text-5xl text-[#e4e2e1] leading-tight">
+              Welcome back to <br />
+              <span className="text-[#d4af37] italic font-black drop-shadow-lg rune-glow">The Scriptorium</span>
+            </h1>
+            <p className="font-label text-sm text-[#e4e2e1]/70 uppercase tracking-widest mt-2">
+              Your Sanctum of Knowledge & Archival Ledger
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <button onClick={onNavigateToSearch} className="illuminated-btn bg-[#1b1c1c] text-[#d4af37] border-[#d4af37]/40">
+              <Sparkles size={16} />
+              <span>Import Title</span>
+            </button>
+            <button onClick={onNavigateToAdd} className="illuminated-btn">
+              <PlusCircle size={16} />
+              <span>Add New Folio</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="mt-8 p-6 md:p-8 parchment-card rounded-sm shadow-2xl relative overflow-hidden max-w-3xl border-2 border-[#d4af37]">
+          <p className="text-lg md:text-xl text-[#383014] font-body leading-relaxed">
+            Your collection holds <span className="text-[#9e1b1b] font-black border-b-2 border-[#9e1b1b]/30">{books.length} manuscript{books.length === 1 ? '' : 's'}</span>. 
+            Total archived volume spans <span className="text-[#9e1b1b] font-black">{totalPages.toLocaleString()} pages</span> across diverse literary mediums.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '0.75rem' }}>
-          <button className="btn btn-secondary" onClick={onNavigateToSearch}>
-            <Sparkles size={18} className="text-violet-400" />
-            <span>Find on Google Books</span>
-          </button>
-          <button className="btn btn-primary" onClick={onNavigateToAdd}>
-            <PlusCircle size={18} />
-            <span>Add New Book</span>
-          </button>
-        </div>
-      </div>
+      </section>
 
-      {/* Filters and Search Bar */}
-      <div className="glass-panel" style={{ padding: '1.25rem', marginBottom: '2rem' }}>
-        <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div className="search-box" style={{ flex: '1 1 300px' }}>
-            <Search className="search-icon" size={18} />
+      {/* Stats Bar */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="parchment-card p-5 flex flex-col justify-between rounded-sm">
+          <div className="flex items-center justify-between">
+            <BookOpen className="text-[#9e1b1b]" size={32} />
+            <span className="text-emerald-800 font-label text-[10px] font-bold uppercase tracking-widest">+100% Active</span>
+          </div>
+          <div className="mt-4">
+            <p className="text-[#383014]/70 font-label uppercase tracking-widest text-[11px] font-bold">Total Books</p>
+            <p className="text-3xl font-black text-[#383014] font-display mt-0.5">{books.length}</p>
+          </div>
+        </div>
+
+        <div className="parchment-card p-5 flex flex-col justify-between rounded-sm">
+          <div className="flex items-center justify-between">
+            <FileText className="text-[#9e1b1b]" size={32} />
+            <span className="text-[#383014]/70 font-label text-[10px] font-bold uppercase tracking-widest">Pages Tracked</span>
+          </div>
+          <div className="mt-4">
+            <p className="text-[#383014]/70 font-label uppercase tracking-widest text-[11px] font-bold">Pages Count</p>
+            <p className="text-3xl font-black text-[#383014] font-display mt-0.5">{totalPages.toLocaleString()}</p>
+          </div>
+        </div>
+
+        <div className="parchment-card p-5 flex flex-col justify-between rounded-sm">
+          <div className="flex items-center justify-between">
+            <Headphones className="text-[#9e1b1b]" size={32} />
+            <span className="text-[#383014]/70 font-label text-[10px] font-bold uppercase tracking-widest">Auditory</span>
+          </div>
+          <div className="mt-4">
+            <p className="text-[#383014]/70 font-label uppercase tracking-widest text-[11px] font-bold">Audiobooks</p>
+            <p className="text-3xl font-black text-[#383014] font-display mt-0.5">{audioCount}</p>
+          </div>
+        </div>
+
+        <div className="parchment-card p-5 flex flex-col justify-between rounded-sm">
+          <div className="flex items-center justify-between">
+            <BookMarked className="text-[#9e1b1b]" size={32} />
+            <span className="text-[#383014]/70 font-label text-[10px] font-bold uppercase tracking-widest">Illustrated</span>
+          </div>
+          <div className="mt-4">
+            <p className="text-[#383014]/70 font-label uppercase tracking-widest text-[11px] font-bold">Comics</p>
+            <p className="text-3xl font-black text-[#383014] font-display mt-0.5">{comicCount}</p>
+          </div>
+        </div>
+      </section>
+
+      {/* Filter and Search Bar */}
+      <section className="space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-[#d4af37]/20 pb-4">
+          <h2 className="font-display text-2xl md:text-3xl text-[#d4af37] tracking-widest uppercase italic drop-shadow-md">
+            Recent Archive
+          </h2>
+          <div className="relative max-w-md w-full">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#383014]/60 z-10" size={18} />
             <input
               type="text"
-              className="search-input"
-              placeholder="Search books by title, author..."
+              placeholder="Search library archives..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
+              className="w-full bg-[#f4ecd8] border border-[#d4af37] py-2.5 pl-10 pr-4 text-[#383014] font-body placeholder:text-[#383014]/50 rounded-sm outline-none focus:ring-2 focus:ring-[#9e1b1b]"
             />
           </div>
-
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <Filter size={16} style={{ color: 'var(--text-muted)' }} />
-            <span style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginRight: '0.25rem' }}>Format:</span>
-            {['ALL', 'Book', 'EBook', 'AudioBook', 'Magazine', 'Journal'].map((type) => (
-              <button
-                key={type}
-                className={`btn btn-secondary ${selectedType === type ? 'btn-primary' : ''}`}
-                style={{ padding: '0.4rem 0.85rem', fontSize: '0.8rem', borderRadius: 'var(--radius-full)' }}
-                onClick={() => setSelectedType(type)}
-              >
-                {type === 'ALL' ? 'All Formats' : type}
-              </button>
-            ))}
-          </div>
         </div>
-      </div>
 
-      {/* Books Grid */}
+        {/* Category Pills */}
+        <div className="flex items-center gap-3 overflow-x-auto pb-2 no-scrollbar">
+          {['ALL', 'Book', 'AudioBook', 'EBook', 'Magazine', 'Journal', 'Comic'].map((type) => (
+            <button
+              key={type}
+              onClick={() => setSelectedType(type)}
+              className={`px-5 py-2.5 font-label text-xs font-bold uppercase tracking-widest transition-all rounded-sm whitespace-nowrap ${
+                selectedType === type
+                  ? 'bg-[#f4ecd8] text-[#383014] border-2 border-[#d4af37] shadow-md'
+                  : 'bg-[#1a1512] text-[#d4af37]/70 border border-[#d4af37]/20 hover:border-[#d4af37]/60 hover:text-[#d4af37]'
+              }`}
+            >
+              {type === 'ALL' ? 'All Mediums' : type}
+            </button>
+          ))}
+        </div>
+      </section>
+
+      {/* Book Grid */}
       {filteredBooks.length > 0 ? (
-        <div className="book-grid">
+        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {filteredBooks.map((book) => {
-            const authorDisplayName = book.authorName || book.author?.name || 'Unknown Author';
+            const authorDisplayName = book.authorName || book.author?.name || 'Unknown Scribe';
             const yearStr = book.publishYear ? new Date(book.publishYear).getFullYear() : 'N/A';
 
             return (
-              <div key={book.id || book.title} className="glass-panel book-card">
-                <div className="book-cover-container">
-                  <span className={`book-cover-badge badge ${getItemTypeBadgeClass(String(book.itemType))}`}>
-                    {String(book.itemType)}
-                  </span>
-                  <img
-                    src={book.coverImageUrl || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80'}
-                    alt={book.title}
-                    className="book-cover-img"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src =
-                        'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=80';
-                    }}
-                  />
-                </div>
-
-                <div className="book-info">
-                  <h3 className="book-title" title={book.title}>{book.title}</h3>
-                  <div className="book-author" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                    <User size={14} className="text-violet-400" />
-                    <span>{authorDisplayName}</span>
+              <div key={book.id || book.title} className="parchment-card group cursor-pointer overflow-hidden rounded-sm flex flex-col justify-between">
+                <div>
+                  <div className="relative h-60 w-full overflow-hidden border-b-2 border-[#d4af37]/30 bg-[#1b1c1c]">
+                    <img
+                      src={book.coverImageUrl || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400'}
+                      alt={book.title}
+                      className="w-full h-full object-cover sepia-[0.35] group-hover:sepia-0 group-hover:scale-105 transition-all duration-700"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=400';
+                      }}
+                    />
+                    <div className="absolute top-3 left-3">
+                      <span className="badge-crimson">
+                        {String(book.itemType)}
+                      </span>
+                    </div>
                   </div>
 
-                  <div className="book-meta">
-                    <div className="book-meta-item">
-                      <FileText size={14} />
-                      <span>{book.defaultPageCount} pages</span>
+                  <div className="p-5 space-y-2">
+                    <h3 className="font-display text-lg text-[#383014] font-black tracking-tight line-clamp-1 italic">
+                      {book.title}
+                    </h3>
+                    <div className="flex items-center gap-1.5 text-xs font-label font-bold text-[#383014]/70 uppercase tracking-wider">
+                      <User size={13} className="text-[#9e1b1b]" />
+                      <span>{authorDisplayName}</span>
                     </div>
+                  </div>
+                </div>
 
-                    <div className="book-meta-item">
-                      <Calendar size={14} />
-                      <span>{yearStr}</span>
-                    </div>
+                <div className="p-5 pt-0">
+                  <div className="pt-3 border-t border-[#383014]/15 flex items-center justify-between text-[11px] font-label font-black text-[#383014]/60 uppercase tracking-widest">
+                    <span className="flex items-center gap-1">
+                      <Layers size={13} /> {book.defaultPageCount} Pages
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <Calendar size={13} /> {yearStr}
+                    </span>
                   </div>
                 </div>
               </div>
             );
           })}
-        </div>
+        </section>
       ) : (
-        <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-          <BookOpen size={48} style={{ color: 'var(--text-dim)', marginBottom: '1rem' }} />
-          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>No books found</h3>
-          <p style={{ color: 'var(--text-muted)', maxWidth: '400px', margin: '0 auto 1.5rem' }}>
-            No titles match your current filter or search criteria. Try adding a new book to your library!
+        <div className="parchment-card p-12 text-center max-w-lg mx-auto rounded-sm border-2 border-[#d4af37]">
+          <BookOpen size={48} className="mx-auto text-[#9e1b1b] mb-4" />
+          <h3 className="font-display text-xl font-bold text-[#383014] mb-2">No Folios Discovered</h3>
+          <p className="font-body text-[#383014]/80 mb-6">
+            No manuscripts match your filter parameters. Initiate a new entry into the archive below.
           </p>
-          <button className="btn btn-primary" onClick={onNavigateToAdd}>
-            <PlusCircle size={18} />
-            <span>Add Your First Book</span>
+          <button onClick={onNavigateToAdd} className="illuminated-btn">
+            <PlusCircle size={16} />
+            <span>Archive New Title</span>
           </button>
         </div>
       )}

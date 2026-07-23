@@ -32,7 +32,7 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
         setTestResponse(res.data);
       } else if (selectedEndpoint === 'createBook') {
         const samplePayload = {
-          title: "Test Book " + Math.floor(Math.random() * 1000),
+          title: "Test Manuscript " + Math.floor(Math.random() * 1000),
           itemType: "Book",
           defaultPageCount: 350,
           publishYear: new Date().toISOString(),
@@ -65,137 +65,142 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
   };
 
   return (
-    <div>
-      <div className="section-title-bar">
+    <div className="space-y-8 pb-16">
+      {/* Title Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#d4af37]/20 pb-4">
         <div>
-          <h1 className="section-title">API Endpoint Explorer & Diagnostics</h1>
-          <p className="section-subtitle">
-            Inspect, test, and monitor ASP.NET Core ReadRate API endpoints in real-time.
+          <h1 className="font-display text-3xl md:text-4xl text-[#e4e2e1] font-black uppercase tracking-wider italic">
+            API Diagnostics & Endpoint Tester
+          </h1>
+          <p className="font-label text-xs text-[#e4e2e1]/70 uppercase tracking-widest mt-1">
+            Test and inspect backend API endpoints for RedBook in real-time.
           </p>
         </div>
-        <button className="btn btn-secondary" onClick={onRefreshHealth}>
+        <button
+          onClick={onRefreshHealth}
+          className="illuminated-btn bg-[#1b1c1c] text-[#d4af37] border-[#d4af37]/40"
+        >
           <RefreshCw size={16} />
-          <span>Ping Health Check</span>
+          <span>Ping Status</span>
         </button>
       </div>
 
-      {/* Backend Health Banner */}
-      <div className="glass-panel" style={{ padding: '1.25rem', marginBottom: '2rem', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-          <Server size={32} className={isOnline ? 'text-emerald-400' : 'text-amber-400'} />
+      {/* Backend Status Card */}
+      <div className="parchment-card p-6 rounded-sm border-2 border-[#d4af37] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+        <div className="flex items-center gap-4">
+          <Server size={36} className={isOnline ? 'text-emerald-800' : 'text-[#9e1b1b]'} />
           <div>
-            <h3 style={{ fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              Target Server: <code style={{ color: 'var(--accent-secondary)' }}>http://localhost:5233</code>
+            <h3 className="font-display font-bold text-lg text-[#383014] flex items-center gap-2">
+              Target API: <code className="bg-[#1a1512] text-[#d4af37] px-2 py-0.5 rounded text-xs">http://localhost:5233</code>
             </h3>
-            <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
+            <p className="font-body text-xs text-[#383014]/80 mt-1">
               {isOnline
-                ? 'Connected to ASP.NET Core Web API (OpenAPI / Swagger endpoint operational)'
-                : 'Backend API offline. Frontend proxy is active; requests use simulated local data.'}
+                ? 'Connected to ASP.NET Core Web API backend.'
+                : 'Backend API offline. Frontend proxy using demo mock fallbacks.'}
             </p>
           </div>
         </div>
 
-        <div className={`badge ${isOnline ? 'badge-journal' : 'badge-audiobook'}`} style={{ padding: '0.5rem 1rem', fontSize: '0.85rem' }}>
+        <div className={`px-4 py-2 font-label font-bold text-xs uppercase tracking-widest rounded-sm border flex items-center gap-2 ${
+          isOnline ? 'bg-emerald-900 text-emerald-200 border-emerald-500' : 'bg-[#9e1b1b] text-white border-[#d4af37]'
+        }`}>
           {isOnline ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
-          <span>{isOnline ? 'STATUS 200 OK' : 'OFFLINE / FALLBACK'}</span>
+          <span>{isOnline ? 'HTTP 200 ONLINE' : 'DEMO MODE'}</span>
         </div>
       </div>
 
-      {/* Tester Interface Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1.3fr', gap: '1.5rem' }}>
-        {/* Left Column: Endpoint selector & params */}
-        <div className="glass-panel" style={{ padding: '1.5rem' }}>
-          <h3 style={{ fontSize: '1.1rem', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-            <Terminal size={18} className="text-violet-400" />
+      {/* Main Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Left Control Panel */}
+        <div className="lg:col-span-5 parchment-card p-6 rounded-sm border border-[#d4af37] space-y-6">
+          <h3 className="font-display font-bold text-lg text-[#383014] flex items-center gap-2 border-b border-[#383014]/15 pb-3 italic">
+            <Terminal size={18} className="text-[#9e1b1b]" />
             <span>Select Endpoint</span>
           </h3>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1.5rem' }}>
+          <div className="space-y-3 font-label">
             <button
-              className={`btn btn-secondary ${selectedEndpoint === 'getBooks' ? 'btn-primary' : ''}`}
-              style={{ justifyContent: 'flex-start', padding: '0.85rem 1rem' }}
               onClick={() => setSelectedEndpoint('getBooks')}
+              className={`w-full text-left p-3.5 rounded-sm border font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-all ${
+                selectedEndpoint === 'getBooks'
+                  ? 'bg-[#1a1512] text-[#d4af37] border-[#d4af37]'
+                  : 'bg-[#f4ecd8] text-[#383014] border-[#383014]/20 hover:border-[#d4af37]'
+              }`}
             >
-              <span className="badge badge-book" style={{ marginRight: '0.5rem' }}>GET</span>
-              <span>/api/book</span>
+              <div className="flex items-center gap-2">
+                <span className="badge-crimson">GET</span>
+                <span>/api/book</span>
+              </div>
             </button>
 
             <button
-              className={`btn btn-secondary ${selectedEndpoint === 'searchBooks' ? 'btn-primary' : ''}`}
-              style={{ justifyContent: 'flex-start', padding: '0.85rem 1rem' }}
               onClick={() => setSelectedEndpoint('searchBooks')}
+              className={`w-full text-left p-3.5 rounded-sm border font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-all ${
+                selectedEndpoint === 'searchBooks'
+                  ? 'bg-[#1a1512] text-[#d4af37] border-[#d4af37]'
+                  : 'bg-[#f4ecd8] text-[#383014] border-[#383014]/20 hover:border-[#d4af37]'
+              }`}
             >
-              <span className="badge badge-book" style={{ marginRight: '0.5rem' }}>GET</span>
-              <span>/api/book/search-google-books</span>
+              <div className="flex items-center gap-2">
+                <span className="badge-crimson">GET</span>
+                <span>/api/book/search-google-books</span>
+              </div>
             </button>
 
             <button
-              className={`btn btn-secondary ${selectedEndpoint === 'createBook' ? 'btn-primary' : ''}`}
-              style={{ justifyContent: 'flex-start', padding: '0.85rem 1rem' }}
               onClick={() => setSelectedEndpoint('createBook')}
+              className={`w-full text-left p-3.5 rounded-sm border font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-all ${
+                selectedEndpoint === 'createBook'
+                  ? 'bg-[#1a1512] text-[#d4af37] border-[#d4af37]'
+                  : 'bg-[#f4ecd8] text-[#383014] border-[#383014]/20 hover:border-[#d4af37]'
+              }`}
             >
-              <span className="badge badge-journal" style={{ marginRight: '0.5rem' }}>POST</span>
-              <span>/api/book</span>
+              <div className="flex items-center gap-2">
+                <span className="badge-gold">POST</span>
+                <span>/api/book</span>
+              </div>
             </button>
           </div>
 
           {selectedEndpoint === 'searchBooks' && (
-            <div className="input-group" style={{ marginBottom: '1.5rem' }}>
-              <label className="input-label">Query Parameter (?query=)</label>
+            <div className="space-y-1">
+              <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014]">
+                Query Parameter (?query=)
+              </label>
               <input
                 type="text"
-                className="text-input"
                 value={searchParam}
                 onChange={(e) => setSearchParam(e.target.value)}
+                className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
               />
             </div>
           )}
 
-          {selectedEndpoint === 'createBook' && (
-            <div style={{ marginBottom: '1.5rem' }}>
-              <label className="input-label" style={{ display: 'block', marginBottom: '0.5rem' }}>Auto Payload:</label>
-              <pre
-                style={{
-                  background: 'rgba(15, 23, 42, 0.8)',
-                  padding: '0.85rem',
-                  borderRadius: 'var(--radius-sm)',
-                  fontSize: '0.8rem',
-                  color: '#a78bfa',
-                  border: '1px solid var(--border-subtle)',
-                }}
-              >
-                {JSON.stringify({
-                  title: "Test Book Sample",
-                  itemType: "Book",
-                  defaultPageCount: 350,
-                  publishYear: new Date().toISOString(),
-                  author: { name: "Test Author", bio: "Automated test" }
-                }, null, 2)}
-              </pre>
-            </div>
-          )}
-
-          <button className="btn btn-primary" style={{ width: '100%', padding: '0.85rem' }} onClick={handleRunEndpoint} disabled={loading}>
-            <Play size={18} />
+          <button
+            onClick={handleRunEndpoint}
+            disabled={loading}
+            className="illuminated-btn w-full py-3"
+          >
+            <Play size={16} />
             <span>{loading ? 'Executing Request...' : 'Send Request'}</span>
           </button>
         </div>
 
-        {/* Right Column: Response Inspector */}
-        <div className="glass-panel" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Code size={18} className="text-cyan-400" />
+        {/* Right Output Panel */}
+        <div className="lg:col-span-7 bg-[#1a1512] p-6 rounded-sm border-2 border-[#d4af37] flex flex-col justify-between space-y-4 shadow-2xl">
+          <div className="flex items-center justify-between border-b border-[#d4af37]/20 pb-3">
+            <h3 className="font-display font-bold text-lg text-[#d4af37] flex items-center gap-2 italic">
+              <Code size={18} />
               <span>Response Payload</span>
             </h3>
 
             {statusCode !== null && (
-              <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <span className={`badge ${statusCode >= 200 && statusCode < 300 ? 'badge-journal' : 'badge-magazine'}`}>
+              <div className="flex items-center gap-2 font-label text-xs font-bold">
+                <span className={`px-2.5 py-1 rounded text-white ${statusCode >= 200 && statusCode < 300 ? 'bg-emerald-900' : 'bg-[#9e1b1b]'}`}>
                   HTTP {statusCode}
                 </span>
                 {executionTime !== null && (
-                  <span className="badge badge-ebook">
+                  <span className="px-2.5 py-1 bg-[#131313] text-[#d4af37] border border-[#d4af37]/40 rounded">
                     {executionTime} ms
                   </span>
                 )}
@@ -203,26 +208,13 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
             )}
           </div>
 
-          <div
-            style={{
-              background: '#090d16',
-              border: '1px solid var(--border-subtle)',
-              borderRadius: 'var(--radius-sm)',
-              padding: '1.25rem',
-              flex: 1,
-              minHeight: '300px',
-              fontFamily: 'monospace',
-              fontSize: '0.85rem',
-              overflow: 'auto',
-              color: testResponse ? '#e2e8f0' : 'var(--text-dim)',
-            }}
-          >
+          <div className="bg-[#0e0e0e] border border-[#d4af37]/30 rounded-sm p-4 min-h-[320px] max-h-[480px] overflow-auto font-mono text-xs text-[#f4ecd8] leading-relaxed">
             {testResponse ? (
               <pre>{JSON.stringify(testResponse, null, 2)}</pre>
             ) : (
-              <div style={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '0.5rem' }}>
-                <Globe size={32} style={{ opacity: 0.3 }} />
-                <span>Click "Send Request" to view live JSON response from ASP.NET Core</span>
+              <div className="h-full min-h-[280px] flex flex-col items-center justify-center text-center text-[#d4af37]/50 space-y-2 font-label">
+                <Globe size={36} className="mx-auto opacity-40" />
+                <p>Click "Send Request" to view live JSON response.</p>
               </div>
             )}
           </div>

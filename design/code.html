@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>RedBook | Premium Library Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Literata:ital,wght@0,200..900;1,200..900&amp;family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#ffb4ac",
+                        "inverse-surface": "#e4e2e1",
+                        "on-primary": "#690006",
+                        "secondary-fixed-dim": "#d4c59f",
+                        "outline-variant": "#59413e",
+                        "on-tertiary-container": "#4f3e00",
+                        "primary-container": "#9e1b1b",
+                        "tertiary-container": "#cca830",
+                        "on-tertiary": "#3c2f00",
+                        "surface-tint": "#ffb4ac",
+                        "on-primary-fixed-variant": "#8f0e12",
+                        "secondary": "#d4c59f",
+                        "error-container": "#93000a",
+                        "secondary-container": "#52482b",
+                        "error": "#ffb4ab",
+                        "on-secondary": "#383014",
+                        "surface": "#131313",
+                        "surface-container": "#1f2020",
+                        "on-tertiary-fixed-variant": "#574500",
+                        "inverse-on-surface": "#303030",
+                        "on-primary-fixed": "#410002",
+                        "on-error-container": "#ffdad6",
+                        "outline": "#a98986",
+                        "on-tertiary-fixed": "#241a00",
+                        "on-secondary-fixed-variant": "#504629",
+                        "inverse-primary": "#b22a27",
+                        "on-surface-variant": "#e1bebb",
+                        "tertiary": "#eac34a",
+                        "background": "#131313",
+                        "tertiary-fixed-dim": "#e9c349",
+                        "surface-variant": "#353535",
+                        "on-secondary-container": "#c6b792",
+                        "on-background": "#e4e2e1",
+                        "on-surface": "#e4e2e1",
+                        "surface-dim": "#131313",
+                        "on-primary-container": "#ffafa7",
+                        "secondary-fixed": "#f1e1b9",
+                        "surface-container-lowest": "#0e0e0e",
+                        "surface-bright": "#393939",
+                        "surface-container-high": "#2a2a2a",
+                        "primary-fixed": "#ffdad6",
+                        "tertiary-fixed": "#ffe088",
+                        "on-error": "#690005",
+                        "surface-container-highest": "#353535",
+                        "primary": "#ffb4ac",
+                        "surface-container-low": "#1b1c1c",
+                        "on-secondary-fixed": "#221b03",
+                        "parchment": "#f4ecd8",
+                        "gold": "#d4af37"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "gutter": "24px",
+                        "container-max": "1200px",
+                        "margin-mobile": "16px",
+                        "unit": "8px",
+                        "margin-desktop": "64px"
+                    },
+                    "fontFamily": {
+                        "title-md": ["Playfair Display"],
+                        "label-sm": ["\"Source Serif 4\""],
+                        "display-lg": ["Playfair Display"],
+                        "body-md": ["Literata"],
+                        "body-lg": ["Literata"],
+                        "headline-lg-mobile": ["Playfair Display"],
+                        "headline-lg": ["Playfair Display"]
+                    },
+                    "fontSize": {
+                        "title-md": ["20px", {"lineHeight": "28px", "fontWeight": "600"}],
+                        "label-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.1em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "900"}],
+                        "body-md": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-lg": ["18px", {"lineHeight": "28px", "fontWeight": "400"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "36px", "fontWeight": "700"}],
+                        "headline-lg": ["32px", {"lineHeight": "40px", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        canvas#bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -10;
+        }
+
+        .flicker-overlay {
+            position: fixed;
+            inset: 0;
+            background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(0,0,0,0.4) 100%);
+            pointer-events: none;
+            z-index: 50;
+            animation: flicker-candle 5s infinite;
+        }
+
+        @keyframes flicker-candle {
+            0%, 100% { opacity: 0.3; }
+            5% { opacity: 0.4; }
+            10% { opacity: 0.35; }
+            15% { opacity: 0.45; }
+            20% { opacity: 0.3; }
+            50% { opacity: 0.4; }
+            80% { opacity: 0.3; }
+        }
+
+        .dark-wood-sidebar {
+            background-color: #1a1512;
+            background-image: url('https://www.transparenttextures.com/patterns/dark-wood.png');
+            border-right: 6px solid #2d241e;
+            box-shadow: inset -15px 0 30px rgba(0,0,0,0.8), 10px 0 20px rgba(0,0,0,0.5);
+            position: relative;
+        }
+
+        .dark-wood-sidebar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(to bottom, transparent, rgba(212, 175, 55, 0.3), transparent);
+        }
+
+        .parchment-card {
+            background-color: #f4ecd8;
+            background-image: url('https://www.transparenttextures.com/patterns/paper-fibers.png');
+            color: #383014;
+            border: 2px solid transparent;
+            border-image: linear-gradient(to bottom right, #d4af37, #8b6b10, #d4af37) 1;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .parchment-card::before {
+            content: '❧';
+            position: absolute;
+            top: 5px;
+            right: 10px;
+            font-size: 24px;
+            opacity: 0.1;
+            color: #383014;
+        }
+
+        .parchment-card:hover {
+            transform: translateY(-8px) scale(1.02);
+            filter: sepia(0.2);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.7), 0 0 15px rgba(212, 175, 55, 0.3);
+        }
+
+        .ink-bleed-hover {
+            position: relative;
+            transition: color 0.3s ease;
+        }
+
+        .ink-bleed-hover:hover {
+            color: #9e1b1b;
+            text-shadow: 0 0 8px rgba(158, 27, 27, 0.4);
+        }
+
+        .wax-seal-btn {
+            background: radial-gradient(circle at 50% 50%, #9e1b1b, #6a1212);
+            border-radius: 50%;
+            width: 64px;
+            height: 64px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 4px 4px 10px rgba(0,0,0,0.6), inset 2px 2px 4px rgba(255,255,255,0.2);
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #7d1515;
+            transition: transform 0.2s;
+        }
+        
+        .wax-seal-btn::after {
+            content: 'R';
+            font-family: 'Playfair Display', serif;
+            font-weight: 900;
+            font-size: 24px;
+            color: rgba(0,0,0,0.3);
+        }
+
+        .illuminated-btn {
+            background: #9e1b1b;
+            color: white;
+            border: 2px solid #d4af37;
+            padding: 12px 24px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 800;
+            position: relative;
+            box-shadow: 0 4px 0 #5e1010;
+            transition: all 0.2s;
+        }
+
+        .mystical-header {
+            background: linear-gradient(to bottom, #111 0%, transparent 100%);
+            border-bottom: 1px solid rgba(212, 175, 55, 0.2);
+        }
+
+        ::-webkit-scrollbar { width: 10px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #2d241e; border: 2px solid #0a0a0a; border-radius: 5px; }
+
+        .rune-glow:hover {
+            animation: rune-pulse 1.5s infinite alternate;
+        }
+
+        @keyframes rune-pulse {
+            from { text-shadow: 0 0 2px #d4af37; }
+            to { text-shadow: 0 0 12px #d4af37, 0 0 20px #ff0000; }
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    </style>
+</head>
+<body class="font-body-md selection:bg-primary-container selection:text-white bg-surface overflow-x-hidden">
+<canvas id="bg-canvas"></canvas>
+<div class="flicker-overlay"></div>
+<!-- SideNavBar -->
+<aside class="fixed left-0 top-0 h-full w-64 z-40 flex flex-col p-6 dark-wood-sidebar hidden md:flex">
+<div class="mb-10 flex flex-col items-center">
+<div class="relative group">
+<div class="absolute inset-0 bg-gold/20 blur-xl group-hover:bg-primary/30 transition-all duration-700"></div>
+<img alt="RedBook Logo" class="w-32 h-32 relative z-10 drop-shadow-[0_0_15px_rgba(158,27,27,0.4)] object-contain" src="https://lh3.googleusercontent.com/aida/AP1WRLtoQHjpHDOPfzYGVGUtcOtH0RuKgdUmEzfHncbr3R47ZIA1UPFA3lcJLpjpkLiCBAN2wWr21gspyS5-bLSjxFM_Dpy-ItvnWhaRYiMzo_JPUNFjMR-P0Dpsr_PXvJHvJdB5pFiHFXwBmFrYoFa1vUXGOtRSjqadxZzqffSkby-8C-jqqtpVu_Bzw74QPpROQS3JgVYpHeX4jIDW48Np5IUDBOXvLcT8FIPFEZ8xdD_O9ruBrsnO4Zvox4CN"/>
+</div>
+<div class="text-center mt-4">
+<h1 class="font-display-lg text-3xl font-black text-primary tracking-tighter uppercase italic drop-shadow-md">RedBook</h1>
+<p class="text-[10px] uppercase tracking-[0.4em] text-gold font-bold mt-1 opacity-90">Premium Library</p>
+</div>
+</div>
+<nav class="flex-1 space-y-2">
+<a class="flex items-center gap-3 bg-[#f4ecd8] text-[#383014] px-4 py-3 rounded-sm border-l-4 border-primary-container shadow-lg transition-all duration-300" href="#">
+<span class="material-symbols-outlined text-primary-container" style="font-variation-settings: 'FILL' 1;">auto_stories</span>
+<span class="font-label-sm font-bold uppercase tracking-widest">Library</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-gold px-4 py-3 transition-all duration-300 group ink-bleed-hover" href="#">
+<span class="material-symbols-outlined group-hover:scale-110">bar_chart</span>
+<span class="font-label-sm font-semibold uppercase tracking-widest">Statistics</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-gold px-4 py-3 transition-all duration-300 group ink-bleed-hover" href="#">
+<span class="material-symbols-outlined group-hover:scale-110">search</span>
+<span class="font-label-sm font-semibold uppercase tracking-widest">Search</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-gold px-4 py-3 transition-all duration-300 group ink-bleed-hover" href="#">
+<span class="material-symbols-outlined group-hover:scale-110">settings</span>
+<span class="font-label-sm font-semibold uppercase tracking-widest">Settings</span>
+</a>
+</nav>
+<div class="mt-auto space-y-4 pt-6 border-t border-gold/10">
+<button class="w-full illuminated-btn">
+            Add New Book
+        </button>
+<div class="flex flex-col gap-1">
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-on-surface px-4 py-2 transition-colors ink-bleed-hover" href="#">
+<span class="material-symbols-outlined">help</span>
+<span class="font-label-sm font-medium uppercase tracking-widest text-[10px]">Help</span>
+</a>
+<a class="flex items-center gap-3 text-on-surface-variant hover:text-error px-4 py-2 transition-colors ink-bleed-hover" href="#">
+<span class="material-symbols-outlined">logout</span>
+<span class="font-label-sm font-medium uppercase tracking-widest text-[10px] text-error/80">Sign Out</span>
+</a>
+</div>
+</div>
+</aside>
+<!-- Top Search Bar (Header) -->
+<header class="fixed top-0 left-0 md:left-64 right-0 z-30 h-24 mystical-header flex items-center px-8 justify-between backdrop-blur-sm">
+<div class="flex items-center gap-6 flex-1 max-w-xl">
+<div class="relative w-full">
+<span class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-primary-container z-10">search</span>
+<input class="w-full bg-[#f4ecd8] border-none py-3 pl-12 pr-6 text-[#383014] font-body-md placeholder:text-[#383014]/40 shadow-inner rounded-sm" placeholder="Search your library or find new books..." type="text"/>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<div class="flex gap-4">
+<button class="w-10 h-10 flex items-center justify-center text-gold hover:text-primary transition-colors rune-glow">
+<span class="material-symbols-outlined">dark_mode</span>
+</button>
+<button class="w-10 h-10 flex items-center justify-center text-gold hover:text-primary transition-colors relative rune-glow">
+<span class="material-symbols-outlined">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 bg-primary-container rounded-full shadow-[0_0_8px_#9e1b1b]"></span>
+</button>
+</div>
+<div class="h-10 w-px bg-gold/20"></div>
+<div class="flex items-center gap-4">
+<div class="text-right hidden sm:block">
+<p class="font-title-md text-sm font-bold text-on-surface uppercase tracking-widest">Alex Reader</p>
+<p class="text-[9px] text-gold font-black uppercase tracking-[0.3em] opacity-80">Librarian Level 4</p>
+</div>
+<div class="w-12 h-12 rounded-full border-2 border-gold/50 overflow-hidden shadow-lg shadow-black p-0.5">
+<img class="w-full h-full object-cover grayscale brightness-110 sepia-[0.3]" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC5ElGSX0AGbWCzYjpObM0kmsws11xh0FCnJ0FuGH6Hgo8VVDpEI4KwiJsPKE_UrW8nS9HGlITVm9AsIiP-JqMhuUs9yBcOQj0e5xSz66mIKhyec1r3EcSKUbX3HuI-pmuJtZX-mxYfnNf08Sqb3BiIzs3N8GXmlE02IoV6bDA6Ludb7MXHxVXEYJr_nVrzkvvXu7F-KRaXFojQFSwEcoC4EyOpKwDheBKAXVyTew71pNKid5Qq9wv1GFwS7Y8OtViL8H9uaYbbWEl6"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="pt-32 pb-20 md:ml-64 px-10 min-h-screen relative">
+<div class="max-w-7xl mx-auto space-y-16">
+<!-- Welcome Section -->
+<section class="relative">
+<h2 class="font-display-lg text-5xl text-on-surface leading-tight">Welcome back, <br/><span class="text-gold italic font-black drop-shadow-lg rune-glow">Alex Reader</span></h2>
+<div class="mt-8 p-8 parchment-card rounded-sm shadow-2xl relative overflow-hidden max-w-2xl">
+<div class="absolute -top-10 -right-10 w-40 h-40 bg-gold/10 rounded-full blur-3xl"></div>
+<p class="text-xl text-[#383014] font-body-lg leading-relaxed relative z-10">
+                    Your collection has grown by <span class="text-primary-container font-black border-b-2 border-primary-container/20">4 titles</span> this week. You're currently <span class="text-primary-container font-black">85%</span> through <span class="italic underline decoration-gold/40 underline-offset-4">"The Midnight Library"</span>. Keep the momentum going!
+                </p>
+</div>
+</section>
+<!-- Stats Bar -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+<!-- Card 1 -->
+<div class="parchment-card p-6 flex flex-col gap-4 border-gold/40">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-primary-container text-4xl">auto_stories</span>
+<span class="text-emerald-700 font-label-sm text-[10px] font-bold uppercase tracking-widest">+3% Ascending</span>
+</div>
+<div>
+<p class="text-[#383014]/60 font-label-sm uppercase tracking-widest text-[11px] font-bold">Total Books</p>
+<p class="text-4xl font-bold text-[#383014] font-headline-lg mt-1">124</p>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="parchment-card p-6 flex flex-col gap-4 border-gold/40">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-primary-container text-4xl">menu_book</span>
+<span class="text-primary-container font-label-sm text-[10px] font-bold uppercase tracking-widest">84% Goal</span>
+</div>
+<div>
+<p class="text-[#383014]/60 font-label-sm uppercase tracking-widest text-[11px] font-bold">Pages Read</p>
+<p class="text-4xl font-bold text-[#383014] font-headline-lg mt-1">12,450</p>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="parchment-card p-6 flex flex-col gap-4 border-gold/40">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-primary-container text-4xl">headphones</span>
+<span class="text-[#383014]/60 font-label-sm text-[10px] font-bold uppercase tracking-widest">18 Listening</span>
+</div>
+<div>
+<p class="text-[#383014]/60 font-label-sm uppercase tracking-widest text-[11px] font-bold">Audiobooks</p>
+<p class="text-4xl font-bold text-[#383014] font-headline-lg mt-1">18</p>
+</div>
+</div>
+<!-- Card 4 -->
+<div class="parchment-card p-6 flex flex-col gap-4 border-gold/40">
+<div class="flex items-center justify-between">
+<span class="material-symbols-outlined text-primary-container text-4xl">collections_bookmark</span>
+<span class="text-[#383014]/60 font-label-sm text-[10px] font-bold uppercase tracking-widest">4 New</span>
+</div>
+<div>
+<p class="text-[#383014]/60 font-label-sm uppercase tracking-widest text-[11px] font-bold">Comics</p>
+<p class="text-4xl font-bold text-[#383014] font-headline-lg mt-1">22</p>
+</div>
+</div>
+</section>
+<!-- Recent Library Section (Filtered) -->
+<section class="flex flex-col gap-8">
+<div class="flex items-center justify-between border-b-2 border-gold/20 pb-4">
+<h3 class="font-headline-lg text-3xl text-gold tracking-widest uppercase italic drop-shadow-md">Recent Library</h3>
+<button class="text-gold font-label-sm text-xs font-bold uppercase tracking-[0.3em] hover:text-primary transition-colors ink-bleed-hover">View All</button>
+</div>
+<div class="flex items-center gap-4 overflow-x-auto pb-4 no-scrollbar">
+<button class="px-10 py-3 bg-[#f4ecd8] text-[#383014] font-label-sm font-black uppercase tracking-widest border-2 border-gold shadow-md">All</button>
+<button class="px-10 py-3 bg-[#1a1512] text-gold/60 font-label-sm font-bold uppercase tracking-widest border border-gold/20 hover:border-gold/60 hover:text-gold transition-all">Book</button>
+<button class="px-10 py-3 bg-[#1a1512] text-gold/60 font-label-sm font-bold uppercase tracking-widest border border-gold/20 hover:border-gold/60 hover:text-gold transition-all">AudioBook</button>
+<button class="px-10 py-3 bg-[#1a1512] text-gold/60 font-label-sm font-bold uppercase tracking-widest border border-gold/20 hover:border-gold/60 hover:text-gold transition-all">EBook</button>
+<button class="px-10 py-3 bg-[#1a1512] text-gold/60 font-label-sm font-bold uppercase tracking-widest border border-gold/20 hover:border-gold/60 hover:text-gold transition-all">Magazine</button>
+<button class="px-10 py-3 bg-[#1a1512] text-gold/60 font-label-sm font-bold uppercase tracking-widest border border-gold/20 hover:border-gold/60 hover:text-gold transition-all">Journal</button>
+<button class="px-10 py-3 bg-[#1a1512] text-gold/60 font-label-sm font-bold uppercase tracking-widest border border-gold/20 hover:border-gold/60 hover:text-gold transition-all">Comic</button>
+</div>
+</section>
+<!-- Book Grid -->
+<section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-10">
+<script>
+                const books = [
+                    { title: "The Art of Design", author: "Jane Doe", stats: "320 Pages, 2023", type: "Book" },
+                    { title: "Digital Echoes", author: "Mark Sterling", stats: "12h 40m, 2024", type: "AudioBook" },
+                    { title: "Future Realities", author: "S. Nakamoto", stats: "PDF, 2.4MB", type: "EBook" },
+                    { title: "Wired Monthly", author: "Editorial", stats: "Issue #245", type: "Magazine" },
+                    { title: "Quantum Dreams", author: "Elena Vance", stats: "540 Pages, 2022", type: "Book" },
+                    { title: "The Last City", author: "J. Miller", stats: "Graphic Novel", type: "Comic" },
+                    { title: "Nature Vol. 12", author: "Multiple Authors", stats: "Academic", type: "Journal" },
+                    { title: "Beyond The Horizon", author: "Peter Quill", stats: "8h 15m, 2023", type: "AudioBook" },
+                    { title: "System Design", author: "Alex Rivers", stats: "EPUB, 1.2MB", type: "EBook" },
+                    { title: "Typography Now", author: "Erik Spiekermann", stats: "280 Pages, 2024", type: "Book" }
+                ];
+
+                const bookAlts = [
+                    "A close-up of a premium book cover titled 'The Art of Design', featuring elegant minimalist typography and a subtle geometric pattern. The book rests on a dark mahogany table in a dim, moody study.",
+                    "A sleek audiobook cover graphic titled 'Digital Echoes', featuring vibrant neon blue waves representing sound on a dark matte background.",
+                    "An artistic ebook thumbnail for 'Future Realities', showcasing a surreal architectural landscape with floating glass structures under a twilight sky.",
+                    "A modern magazine cover titled 'Wired Monthly', featuring a high-definition photograph of a humanoid robot eye with intricate circuitry visible.",
+                    "A thick hardcover book titled 'Quantum Dreams', featuring an abstract cover of swirling stardust and deep space nebulas.",
+                    "A vibrant comic book cover titled 'The Last City', showing a detailed cyberpunk cityscape at night with flying vehicles and glowing neon signs.",
+                    "A scholarly journal cover titled 'Nature Vol. 12', featuring a macro photograph of a complex leaf structure showing intricate veins and cellular detail.",
+                    "An elegant audiobook cover titled 'Beyond The Horizon', featuring a lone sailboat on a mirror-like ocean at sunrise.",
+                    "A clean technical ebook cover for 'System Design', featuring a stylized white network node diagram on a dark navy blue background.",
+                    "A beautiful typography-focused book cover titled 'Typography Now', showcasing bold, layered lettering and experimental layouts."
+                ];
+
+                document.write(books.map((book, i) => `
+                    <div class="parchment-card group cursor-pointer overflow-hidden rounded-sm">
+                        <div class="relative h-64 w-full overflow-hidden border-b-2 border-gold/10 bg-surface-container-low">
+                            <img src="https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400" alt="${bookAlts[i]}" class="w-full h-full object-cover sepia-[0.4] group-hover:sepia-0 group-hover:scale-110 transition-all duration-700">
+                            <div class="absolute inset-0 bg-gradient-to-t from-[#f4ecd8] via-transparent to-transparent"></div>
+                            <div class="absolute top-3 left-3">
+                                <span class="px-2 py-1 bg-primary-container text-white text-[9px] font-black uppercase tracking-widest shadow-md">
+                                    ${book.type}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="p-5">
+                            <h4 class="font-headline-lg text-lg text-[#383014] font-black tracking-tight line-clamp-1 italic">${book.title}</h4>
+                            <p class="text-[10px] font-bold uppercase tracking-widest text-[#383014]/60 mt-1">${book.author}</p>
+                            <div class="mt-4 pt-3 border-t border-[#383014]/10 flex items-center justify-between text-[9px] font-black uppercase tracking-widest text-[#383014]/50">
+                                <span class="flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-[12px]">analytics</span> ${book.stats}
+                                </span>
+                                <div class="flex gap-2">
+                                    <span class="material-symbols-outlined text-[14px] hover:text-primary-container transition-colors">visibility</span>
+                                    <span class="material-symbols-outlined text-[14px] hover:text-primary-container transition-colors">edit</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="absolute -bottom-10 group-hover:bottom-0 left-0 right-0 h-1 bg-primary-container transition-all"></div>
+                    </div>
+                `).join(''));
+            </script>
+</section>
+</div>
+<!-- Footer -->
+<footer class="w-full max-w-7xl mx-auto px-8 flex flex-col sm:flex-row justify-between items-center mt-24 py-12 border-t border-gold/20">
+<div class="flex items-center gap-4">
+<img alt="Small Logo" class="w-12 h-12 grayscale brightness-50 opacity-50 sepia-[1]" src="https://lh3.googleusercontent.com/aida/AP1WRLtoQHjpHDOPfzYGVGUtcOtH0RuKgdUmEzfHncbr3R47ZIA1UPFA3lcJLpjpkLiCBAN2wWr21gspyS5-bLSjxFM_Dpy-ItvnWhaRYiMzo_JPUNFjMR-P0Dpsr_PXvJHvJdB5pFiHFXwBmFrYoFa1vUXGOtRSjqadxZzqffSkby-8C-jqqtpVu_Bzw74QPpROQS3JgVYpHeX4jIDW48Np5IUDBOXvLcT8FIPFEZ8xdD_O9ruBrsnO4Zvox4CN"/>
+<p class="font-label-sm text-[10px] font-bold uppercase tracking-[0.4em] text-gold/60">© 2024 ReadRate v2.1.0 • Built in Darkness</p>
+</div>
+<div class="flex gap-10 mt-6 sm:mt-0">
+<a class="font-label-sm text-[10px] font-black uppercase tracking-[0.2em] text-gold/50 hover:text-gold transition-colors" href="#">Privacy Policy</a>
+<a class="font-label-sm text-[10px] font-black uppercase tracking-[0.2em] text-gold/50 hover:text-gold transition-colors" href="#">Terms of Service</a>
+</div>
+</footer>
+</main>
+<!-- Wax Seal FAB -->
+<button class="fixed bottom-12 right-12 wax-seal-btn z-50 hover:scale-110 transition-transform shadow-[0_15px_35px_rgba(0,0,0,0.8)]">
+<div class="absolute inset-0 bg-black/10 opacity-0 hover:opacity-100 transition-opacity"></div>
+</button>
+<script id="shader-logic">
+    const canvas = document.getElementById('bg-canvas');
+    const gl = canvas.getContext('webgl');
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+    }
+    window.addEventListener('resize', resize);
+    resize();
+
+    const vertexShaderSrc = `
+        attribute vec2 position;
+        varying vec2 v_texCoord;
+        void main() {
+            v_texCoord = position * 0.5 + 0.5;
+            gl_Position = vec4(position, 0.0, 1.0);
+        }
+    `;
+
+    const fragmentShaderSrc = `
+        precision highp float;
+        uniform float u_time;
+        uniform vec2 u_resolution;
+        varying vec2 v_texCoord;
+
+        float noise(vec2 p) {
+            return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453);
+        }
+
+        float smoothNoise(vec2 p) {
+            vec2 i = floor(p);
+            vec2 f = fract(p);
+            f = f * f * (3.0 - 2.0 * f);
+            float a = noise(i);
+            float b = noise(i + vec2(1.0, 0.0));
+            float c = noise(i + vec2(0.0, 1.0));
+            float d = noise(i + vec2(1.0, 1.0));
+            return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
+        }
+
+        float fbm(vec2 p) {
+            float v = 0.0;
+            float a = 0.5;
+            for (int i = 0; i < 5; i++) {
+                v += a * smoothNoise(p);
+                p *= 2.0;
+                a *= 0.5;
+            }
+            return v;
+        }
+
+        void main() {
+            vec2 uv = v_texCoord;
+            vec2 p = uv * 3.0;
+            float n = fbm(p + u_time * 0.05);
+            vec3 color1 = vec3(0.05, 0.04, 0.03); 
+            vec3 color2 = vec3(0.12, 0.04, 0.04); 
+            vec3 color3 = vec3(0.18, 0.08, 0.04);  
+            vec3 finalColor = mix(color1, color2, n);
+            finalColor = mix(finalColor, color3, pow(n, 3.0) * 0.5);
+            float vignette = 1.0 - length(uv - 0.5) * 1.5;
+            finalColor *= vignette;
+            gl_FragColor = vec4(finalColor, 1.0);
+        }
+    `;
+
+    const vs = gl.createShader(gl.VERTEX_SHADER);
+    gl.shaderSource(vs, vertexShaderSrc);
+    gl.compileShader(vs);
+    const fs = gl.createShader(gl.FRAGMENT_SHADER);
+    gl.shaderSource(fs, fragmentShaderSrc);
+    gl.compileShader(fs);
+
+    const program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    const buffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
+
+    const posAttr = gl.getAttribLocation(program, 'position');
+    gl.enableVertexAttribArray(posAttr);
+    gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+    const timeUnif = gl.getUniformLocation(program, 'u_time');
+    const resUnif = gl.getUniformLocation(program, 'u_resolution');
+
+    function render(time) {
+        gl.uniform1f(timeUnif, time * 0.001);
+        gl.uniform2f(resUnif, canvas.width, canvas.height);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        requestAnimationFrame(render);
+    }
+    requestAnimationFrame(render);
+</script>
+</body></html>

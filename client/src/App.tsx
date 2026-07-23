@@ -6,7 +6,7 @@ import { GoogleBooksSearch } from './components/GoogleBooksSearch';
 import { ApiTester } from './components/ApiTester';
 import { BookService } from './services/api';
 import type { Book, CreateBookDto } from './types/book';
-import { CheckCircle2, Info, AlertTriangle } from 'lucide-react';
+import { CheckCircle2, Info, AlertTriangle, Plus } from 'lucide-react';
 
 export interface ToastMessage {
   id: string;
@@ -48,12 +48,16 @@ export function App() {
   const handleCreateBook = async (dto: CreateBookDto) => {
     const { book, isMock } = await BookService.createBook(dto);
     setBooks((prev) => [book, ...prev]);
-    addToast(`"${book.title}" saved successfully to ${isMock ? 'demo storage' : 'database'}!`, 'success');
+    addToast(`"${book.title}" inscribe into ${isMock ? 'demo storage' : 'database'}!`, 'success');
     setActiveTab('library');
   };
 
   return (
-    <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="min-h-screen bg-[#131313] text-[#e4e2e1] flex flex-col relative font-body">
+      {/* Candlelight Flicker Vignette Overlay */}
+      <div className="flicker-overlay"></div>
+
+      {/* Navigation Sidebar & Header */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
@@ -61,7 +65,8 @@ export function App() {
         bookCount={books.length}
       />
 
-      <main className="main-content" style={{ flex: 1 }}>
+      {/* Main Content View Container */}
+      <main className="flex-1 md:ml-64 px-4 sm:px-8 lg:px-12 pt-8 pb-20 max-w-7xl">
         {activeTab === 'library' && (
           <BookList
             books={books}
@@ -90,28 +95,34 @@ export function App() {
             onRefreshHealth={checkHealth}
           />
         )}
+
+        {/* Archival Footer */}
+        <footer className="mt-20 pt-8 border-t border-[#d4af37]/20 flex flex-col sm:flex-row items-center justify-between gap-4 font-label text-xs text-[#d4af37]/60">
+          <p className="uppercase tracking-[0.3em]">
+            © 2026 RedBook v2.1.0 • Built in Darkness
+          </p>
+          <p className="uppercase tracking-widest text-[10px]">
+            Powered by React, Vite & .NET Core Web API
+          </p>
+        </footer>
       </main>
 
-      <footer
-        style={{
-          borderTop: '1px solid var(--border-subtle)',
-          padding: '1.5rem 2rem',
-          textAlign: 'center',
-          color: 'var(--text-dim)',
-          fontSize: '0.85rem',
-          marginTop: '4rem',
-        }}
+      {/* Floating Wax Seal Action Button (FAB) */}
+      <button
+        onClick={() => setActiveTab('add')}
+        className="wax-seal-btn fixed bottom-8 right-8 z-50 group"
+        title="Inscribe New Folio"
       >
-        <p>ReadRate V2 — Powered by React 18, Vite & .NET Core Web API</p>
-      </footer>
+        <Plus className="w-6 h-6 text-[#f4ecd8] group-hover:scale-125 transition-transform" />
+      </button>
 
       {/* Toast Notifications */}
       <div className="toast-container">
         {toasts.map((toast) => (
-          <div key={toast.id} className={`toast toast-${toast.type}`}>
-            {toast.type === 'success' && <CheckCircle2 size={18} />}
-            {toast.type === 'info' && <Info size={18} />}
-            {toast.type === 'warning' && <AlertTriangle size={18} />}
+          <div key={toast.id} className="toast">
+            {toast.type === 'success' && <CheckCircle2 size={18} className="text-[#9e1b1b]" />}
+            {toast.type === 'info' && <Info size={18} className="text-[#d4af37]" />}
+            {toast.type === 'warning' && <AlertTriangle size={18} className="text-amber-600" />}
             <span>{toast.text}</span>
           </div>
         ))}

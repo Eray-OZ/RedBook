@@ -35,7 +35,7 @@ export const GoogleBooksSearch: React.FC<GoogleBooksSearchProps> = ({
 
   const handleImport = async (item: GoogleBookSearchResult) => {
     const primaryAuthor = item.authors && item.authors.length > 0 ? item.authors[0] : 'Unknown Author';
-    
+
     let dateIso = new Date().toISOString();
     if (item.publishedDate) {
       const parsedDate = new Date(item.publishedDate);
@@ -67,92 +67,81 @@ export const GoogleBooksSearch: React.FC<GoogleBooksSearchProps> = ({
   };
 
   return (
-    <div>
-      <div className="section-title-bar">
-        <div>
-          <h1 className="section-title">Google Books Search</h1>
-          <p className="section-subtitle">
-            Query millions of titles online via <code style={{ color: 'var(--accent-secondary)' }}>/api/book/search-google-books</code> and import them to your library in 1 click.
-          </p>
-        </div>
+    <div className="space-y-8 pb-16">
+      {/* Title Header */}
+      <div className="border-b border-[#d4af37]/20 pb-4">
+        <h1 className="font-display text-3xl md:text-4xl text-[#e4e2e1] font-black uppercase tracking-wider italic">
+          Google Books Archival Search
+        </h1>
+        <p className="font-label text-xs text-[#e4e2e1]/70 uppercase tracking-widest mt-1">
+          Query Google Books database online and archive titles directly into your local library.
+        </p>
       </div>
 
       {/* Search Input Box */}
-      <form onSubmit={handleSearch} style={{ marginBottom: '2rem' }}>
-        <div className="glass-panel" style={{ padding: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-          <div className="search-box" style={{ flex: 1 }}>
-            <Search className="search-icon" size={20} />
+      <form onSubmit={handleSearch}>
+        <div className="parchment-card p-4 sm:p-6 rounded-sm border-2 border-[#d4af37] flex flex-col sm:flex-row gap-4 items-center shadow-xl">
+          <div className="relative flex-1 w-full">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#383014]/60 z-10" size={18} />
             <input
               type="text"
-              className="search-input"
-              placeholder="Search Google Books by title, author, topic, or ISBN..."
+              placeholder="Search by title, author, subject, or ISBN..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
+              className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 py-3 pl-10 pr-4 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
             />
           </div>
-          <button type="submit" className="btn btn-primary" disabled={loading} style={{ padding: '0.85rem 1.75rem' }}>
-            {loading ? <Loader2 className="animate-spin" size={18} /> : <Sparkles size={18} />}
-            <span>{loading ? 'Searching...' : 'Search Google Books'}</span>
+          <button
+            type="submit"
+            disabled={loading}
+            className="illuminated-btn w-full sm:w-auto"
+          >
+            {loading ? <Loader2 className="animate-spin" size={16} /> : <Sparkles size={16} />}
+            <span>{loading ? 'Searching...' : 'Search Online'}</span>
           </button>
         </div>
       </form>
 
-      {/* Results Grid */}
+      {/* Results Section */}
       {loading ? (
-        <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-          <Loader2 size={40} className="animate-spin text-violet-400" style={{ margin: '0 auto 1rem' }} />
-          <p style={{ color: 'var(--text-muted)' }}>Querying Google Books API endpoints...</p>
+        <div className="parchment-card p-12 text-center rounded-sm border border-[#d4af37]">
+          <Loader2 size={40} className="animate-spin text-[#9e1b1b] mx-auto mb-3" />
+          <p className="font-body text-[#383014] font-bold">Querying Google Books API endpoints...</p>
         </div>
       ) : results.length > 0 ? (
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '1.5rem' }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {results.map((book) => {
             const isImported = importedIds[book.id];
-            const authorStr = book.authors ? book.authors.join(', ') : 'Unknown Author';
+            const authorStr = book.authors ? book.authors.join(', ') : 'Unknown Scribe';
 
             return (
-              <div key={book.id} className="glass-panel" style={{ display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-                <div style={{ display: 'flex', gap: '1rem', padding: '1.25rem' }}>
-                  <img
-                    src={book.coverUrl || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80'}
-                    alt={book.title}
-                    style={{
-                      width: '90px',
-                      height: '135px',
-                      objectFit: 'cover',
-                      borderRadius: 'var(--radius-sm)',
-                      background: '#0f172a',
-                      flexShrink: 0,
-                    }}
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).src =
-                        'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=80';
-                    }}
-                  />
-
-                  <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
-                    <h3
-                      style={{
-                        fontSize: '1rem',
-                        lineHeight: 1.3,
-                        marginBottom: '0.35rem',
-                        display: '-webkit-box',
-                        WebkitLineClamp: 2,
-                        WebkitBoxOrient: 'vertical',
-                        overflow: 'hidden',
+              <div key={book.id} className="parchment-card p-5 rounded-sm border border-[#d4af37] flex flex-col justify-between space-y-4">
+                <div className="flex gap-4">
+                  <div className="w-24 h-36 flex-shrink-0 bg-[#1b1c1c] border border-[#d4af37]/40 rounded-sm overflow-hidden shadow-md">
+                    <img
+                      src={book.coverUrl || 'https://images.unsplash.com/photo-1544947950-fa07a98d237f?auto=format&fit=crop&q=80&w=400'}
+                      alt={book.title}
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src =
+                          'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&q=80&w=400';
                       }}
-                      title={book.title}
-                    >
+                    />
+                  </div>
+
+                  <div className="flex-1 space-y-1.5 overflow-hidden">
+                    <h3 className="font-display font-black text-base text-[#383014] line-clamp-2 italic" title={book.title}>
                       {book.title}
                     </h3>
-                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginBottom: '0.75rem' }}>
+                    <p className="font-label text-xs font-bold text-[#383014]/70 uppercase tracking-wider">
                       {authorStr}
                     </p>
 
-                    <div style={{ display: 'flex', gap: '0.75rem', fontSize: '0.78rem', color: 'var(--text-dim)', marginTop: 'auto' }}>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
-                        <FileText size={12} /> {book.pageCount} p.
+                    <div className="flex items-center gap-3 text-[10px] font-label font-bold text-[#383014]/60 uppercase tracking-widest pt-2">
+                      <span className="flex items-center gap-1">
+                        <FileText size={12} /> {book.pageCount || 250} Pages
                       </span>
-                      <span style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <span className="flex items-center gap-1">
                         <Calendar size={12} /> {book.publishedDate?.substring(0, 4) || 'N/A'}
                       </span>
                     </div>
@@ -160,44 +149,23 @@ export const GoogleBooksSearch: React.FC<GoogleBooksSearchProps> = ({
                 </div>
 
                 {book.description && (
-                  <p
-                    style={{
-                      fontSize: '0.82rem',
-                      color: 'var(--text-dim)',
-                      padding: '0 1.25rem 1rem',
-                      display: '-webkit-box',
-                      WebkitLineClamp: 2,
-                      WebkitBoxOrient: 'vertical',
-                      overflow: 'hidden',
-                    }}
-                  >
+                  <p className="font-body text-xs text-[#383014]/80 line-clamp-2 border-t border-[#383014]/10 pt-2">
                     {book.description}
                   </p>
                 )}
 
-                <div
-                  style={{
-                    marginTop: 'auto',
-                    padding: '0.85rem 1.25rem',
-                    background: 'rgba(15, 23, 42, 0.4)',
-                    borderTop: '1px solid var(--border-subtle)',
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
+                <div className="pt-2 border-t border-[#383014]/15">
                   {isImported ? (
-                    <span style={{ color: 'var(--accent-emerald)', fontSize: '0.85rem', display: 'flex', alignItems: 'center', gap: '0.35rem', fontWeight: 600 }}>
-                      <CheckCircle2 size={16} /> Added to Library!
-                    </span>
+                    <div className="flex items-center justify-center gap-2 py-2 text-xs font-label font-bold text-emerald-800 uppercase tracking-wider">
+                      <CheckCircle2 size={16} /> Archived to Library
+                    </div>
                   ) : (
                     <button
-                      className="btn btn-success"
-                      style={{ padding: '0.45rem 1rem', fontSize: '0.82rem', width: '100%' }}
                       onClick={() => handleImport(book)}
+                      className="w-full py-2.5 font-label text-xs font-bold uppercase tracking-widest bg-[#9e1b1b] text-white hover:bg-[#b82121] transition-colors border border-[#d4af37] flex items-center justify-center gap-1.5 rounded-sm shadow-md"
                     >
-                      <Plus size={16} />
-                      <span>Import Book</span>
+                      <Plus size={14} />
+                      <span>Archive Folio</span>
                     </button>
                   )}
                 </div>
@@ -206,16 +174,16 @@ export const GoogleBooksSearch: React.FC<GoogleBooksSearchProps> = ({
           })}
         </div>
       ) : hasSearched ? (
-        <div className="glass-panel" style={{ padding: '3rem 2rem', textAlign: 'center' }}>
-          <BookOpen size={40} style={{ color: 'var(--text-dim)', marginBottom: '1rem' }} />
-          <p style={{ color: 'var(--text-muted)' }}>No books found on Google Books for "{query}". Try a different keyword.</p>
+        <div className="parchment-card p-10 text-center rounded-sm border border-[#d4af37]">
+          <BookOpen size={40} className="mx-auto text-[#9e1b1b] mb-3" />
+          <p className="font-body text-[#383014]">No manuscripts found on Google Books for "{query}".</p>
         </div>
       ) : (
-        <div className="glass-panel" style={{ padding: '4rem 2rem', textAlign: 'center' }}>
-          <Sparkles size={48} className="text-violet-400" style={{ marginBottom: '1rem' }} />
-          <h3 style={{ fontSize: '1.25rem', marginBottom: '0.5rem' }}>Search millions of books</h3>
-          <p style={{ color: 'var(--text-muted)', maxWidth: '460px', margin: '0 auto' }}>
-            Type a book title, author, or topic above to fetch results live from Google Books API and import them directly into ReadRate.
+        <div className="parchment-card p-12 text-center max-w-lg mx-auto rounded-sm border-2 border-[#d4af37]">
+          <Sparkles size={48} className="mx-auto text-[#9e1b1b] mb-4" />
+          <h3 className="font-display text-xl font-bold text-[#383014] mb-2">Search Global Repository</h3>
+          <p className="font-body text-[#383014]/80">
+            Query Google Books to automatically fetch covers, authors, and page counts directly into RedBook.
           </p>
         </div>
       )}
