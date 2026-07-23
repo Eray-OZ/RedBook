@@ -17,8 +17,7 @@ public class GoogleBooksService
 
     public async Task<List<object>> SearchBookAsync(string query)
     {
-        string url = $"https://www.googleapis.com/books/v1/volumes?q={Uri.EscapeDataString(query)}&key={_apiKey}";
-        var response = await _httpClient.GetAsync(url);
+        string url = $"https://www.googleapis.com/books/v1/volumes?q={Uri.EscapeDataString(query)}&key={_apiKey}&langRestrict=tr&printType=books&orderBy=relevance"; var response = await _httpClient.GetAsync(url);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -37,6 +36,10 @@ public class GoogleBooksService
         {
             foreach (var item in items)
             {
+                // Döngünün içindeki CoverImageUrl atamasını şu şekilde değiştirin:
+                string? rawCoverUrl = item["volumeInfo"]?["imageLinks"]?["thumbnail"]?.ToString();
+                string? cleanCoverUrl = rawCoverUrl?.Replace("&edge=curl", "").Replace("zoom=1", "zoom=2");
+
                 results.Add(new
                 {
                     GoogleBooksId = item["id"]?.ToString(),
@@ -44,7 +47,7 @@ public class GoogleBooksService
                     AuthorName = item["volumeInfo"]?["authors"]?[0]?.ToString() ?? "Bilinmeyen Yazar",
                     PageCount = (int?)item["volumeInfo"]?["pageCount"] ?? 0,
                     PublishYear = item["volumeInfo"]?["publishedDate"]?.ToString(),
-                    CoverImageUrl = item["volumeInfo"]?["imageLinks"]?["thumbnail"]?.ToString()
+                    CoverImageUrl = cleanCoverUrl
                 });
             }
         }
