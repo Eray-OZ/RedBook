@@ -1,4 +1,6 @@
+using api.Core.Interfaces;
 using api.Data.Context;
+using api.Data.Repository;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -12,6 +14,10 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<AppDbContext>(options => 
 options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
+
+
+
+builder.Services.AddScoped<IBookRepo, BookRepo>();
 
 
 var app = builder.Build();
