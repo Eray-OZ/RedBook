@@ -1,8 +1,10 @@
 using api.Application.DTOs.Book;
 using api.Application.Mappings;
+using api.Application.Services;
 using api.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 
 namespace api.Controllers
 {
@@ -11,9 +13,11 @@ namespace api.Controllers
     public class BookController : ControllerBase
     {
         private readonly IBookRepo _bookRepo;
-        public BookController(IBookRepo bookRepo)
+        private readonly GoogleBooksService _googleBookService;
+        public BookController(IBookRepo bookRepo, GoogleBooksService googleBooksService)
         {
             _bookRepo = bookRepo;
+            _googleBookService = googleBooksService;
         }
 
 
@@ -36,6 +40,18 @@ namespace api.Controllers
             await _bookRepo.CreateAsync(bookEntity);
             return Ok(bookEntity);
         }
+
+
+        [HttpGet("search-google-books")]
+        public async Task<IActionResult> SearchFromGoogleBooks([FromQuery] string query)
+        {
+            if (string.IsNullOrWhiteSpace(query)) 
+            return BadRequest("Cannot be null");
+
+            var results = await _googleBookService.SearchBookAsync(query);
+            return Ok(results);
+        }
+
 
 
     }

@@ -1,3 +1,4 @@
+using api.Application.Services;
 using api.Core.Interfaces;
 using api.Data.Context;
 using api.Data.Repository;
@@ -20,9 +21,9 @@ options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 
 
-
 builder.Services.AddScoped<IBookRepo, BookRepo>();
 
+builder.Services.AddHttpClient<GoogleBooksService>();
 
 var app = builder.Build();
 
