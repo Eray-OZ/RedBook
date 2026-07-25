@@ -5,14 +5,53 @@
   --font-body: 'Plus Jakarta Sans', sans-serif;
   --font-label: 'Plus Jakarta Sans', sans-serif;
 
-  --color-primary: #9a4600;
-  --color-primary-container: #ff8a3d;
-  --color-secondary: #006970;
-  --color-secondary-container: #8df2fc;
-  --color-tertiary: #77574d;
-  --color-tertiary-container: #c8a195;
   --color-background: #fff9eb;
   --color-on-background: #1e1c10;
+  --color-surface: #fff9eb;
+  --color-surface-bright: #fff9eb;
+  --color-surface-dim: #e0dac7;
+  --color-surface-container-low: #faf3e0;
+  --color-surface-container: #f4eedb;
+  --color-surface-container-high: #efe8d5;
+  --color-surface-container-highest: #e9e2d0;
+  --color-surface-variant: #e9e2d0;
+  --color-primary: #9a4600;
+  --color-primary-container: #ff8a3d;
+  --color-on-primary-container: #682d00;
+  --color-secondary: #006970;
+  --color-secondary-container: #8df2fc;
+  --color-on-secondary-container: #006f77;
+  --color-tertiary: #77574d;
+  --color-tertiary-container: #c8a195;
+  --color-on-tertiary-container: #53382f;
+  --color-on-surface-variant: #564338;
+  --color-on-surface: #1e1c10;
+  --shadow-color: #1e1c10;
+}
+
+html.dark {
+  --color-background: #1a1614; /* Deep Warm Espresso/Charcoal - NOT flat black */
+  --color-on-background: #f6eee0; /* Warm Parched Cream Text */
+  --color-surface: #26211d; /* Rich Dark Parchment Surface */
+  --color-surface-bright: #302a25;
+  --color-surface-dim: #1c1815;
+  --color-surface-container-low: #1f1b18;
+  --color-surface-container: #28231e;
+  --color-surface-container-high: #322b24;
+  --color-surface-container-highest: #3c342c;
+  --color-surface-variant: #3c342c;
+  --color-primary: #ff8a3d; /* Luminous Amber */
+  --color-primary-container: #7a3500; /* Rich Warm Orange/Copper */
+  --color-on-primary-container: #ffdbc9;
+  --color-secondary: #36d1dc; /* Luminous Cyan/Teal */
+  --color-secondary-container: #004e54; /* Deep Ocean Teal */
+  --color-on-secondary-container: #b5f2f8;
+  --color-tertiary: #d99a89;
+  --color-tertiary-container: #462c24; /* Deep Terracotta */
+  --color-on-tertiary-container: #f7dbd0;
+  --color-on-surface-variant: #cbbbae;
+  --color-on-surface: #f6eee0;
+  --shadow-color: #0b0908;
 }
 
 * {
@@ -28,22 +67,23 @@ body {
   min-height: 100vh;
   line-height: 1.6;
   overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* Custom Utility for Neo-Brutalism Shadows */
 .shadow-brutal {
-    box-shadow: 6px 6px 0px 0px #1e1c10;
+    box-shadow: 6px 6px 0px 0px var(--shadow-color);
 }
 .shadow-brutal-sm {
-    box-shadow: 4px 4px 0px 0px #1e1c10;
+    box-shadow: 4px 4px 0px 0px var(--shadow-color);
 }
 .shadow-brutal-hover:hover {
     transform: translate(-2px, -2px);
-    box-shadow: 6px 6px 0px 0px #1e1c10;
+    box-shadow: 6px 6px 0px 0px var(--shadow-color);
 }
 .shadow-brutal-active:active {
     transform: translate(4px, 4px);
-    box-shadow: 0px 0px 0px 0px #1e1c10;
+    box-shadow: 0px 0px 0px 0px var(--shadow-color);
 }
 
 /* Hand-drawn SVG animation */
@@ -60,8 +100,8 @@ body {
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #faf3e0; }
-::-webkit-scrollbar-thumb { background: #c8a195; border: 1px solid #1e1c10; border-radius: 4px; }
+::-webkit-scrollbar-track { background: var(--color-surface-container-low); }
+::-webkit-scrollbar-thumb { background: var(--color-tertiary-container); border: 1px solid var(--color-on-background); border-radius: 4px; }
 
 /* Toast Notifications */
 .toast-container {
@@ -76,9 +116,9 @@ body {
 
 .toast {
   padding: 0.8rem 1.2rem;
-  background: #fff9eb;
-  color: #1e1c10;
-  border: 2px solid #1e1c10;
+  background: var(--color-surface);
+  color: var(--color-on-background);
+  border: 2px solid var(--color-on-background);
   border-radius: 0.5rem;
   font-family: var(--font-body);
   font-size: 0.9rem;
@@ -86,7 +126,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  box-shadow: 4px 4px 0px 0px #1e1c10;
+  box-shadow: 4px 4px 0px 0px var(--shadow-color);
   animation: slideIn 0.3s ease forwards;
 }
 
@@ -94,4 +134,3 @@ body {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
-

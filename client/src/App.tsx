@@ -22,6 +22,27 @@ export function App() {
   const [isBackendOnline, setIsBackendOnline] = useState<boolean>(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
+  // Dark Mode state with LocalStorage persistence
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
+    const saved = localStorage.getItem('theme');
+    if (saved) return saved === 'dark';
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
+  });
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+      localStorage.setItem('theme', 'dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+      localStorage.setItem('theme', 'light');
+    }
+  }, [isDarkMode]);
+
+  const toggleDarkMode = () => {
+    setIsDarkMode((prev) => !prev);
+  };
+
   const addToast = (text: string, type: 'success' | 'info' | 'warning' = 'success') => {
     const id = String(Date.now());
     setToasts((prev) => [...prev, { id, text, type }]);
@@ -59,7 +80,7 @@ export function App() {
   const handleCreateBook = async (dto: CreateBookDto) => {
     const { book, isMock } = await BookService.createBook(dto);
     await refreshAll();
-    addToast(`"${book.title}" ${isMock ? 'demo belleğe' : 'veritabanına'} kaydedildi!`, 'success');
+    addToast(`"${book.title}" saved to ${isMock ? 'demo memory' : 'database'}!`, 'success');
     setActiveTab('library');
   };
 
@@ -72,6 +93,8 @@ export function App() {
         isBackendOnline={isBackendOnline}
         bookCount={books.length}
         logCount={logs.length}
+        isDarkMode={isDarkMode}
+        toggleDarkMode={toggleDarkMode}
       />
 
       {/* Main Content Wrapper */}
@@ -88,7 +111,7 @@ export function App() {
           {activeTab === 'library' && (
             <BookList
               books={books}
-              onNavigateToAdd={() => setActiveTab('add')}
+              onNavigateToAdd={() => setActiveTab('logs')}
               onNavigateToSearch={() => setActiveTab('search')}
             />
           )}
@@ -118,24 +141,24 @@ export function App() {
         {/* Footer */}
         <footer className="w-full border-t-2 border-on-background flex flex-col md:flex-row justify-between items-center px-margin-desktop py-8 gap-gutter max-w-container-max mx-auto bg-surface-container-highest mt-12">
           <div className="font-headline-md text-headline-md text-primary">
-            The Ledger
+            Red Book
           </div>
           <div className="font-caption text-caption text-on-surface text-center md:text-left">
-            © 2026 The Ledger. Tüm hakları saklıdır.
+            © 2026 Red Book. All rights reserved.
           </div>
           <div className="flex gap-4">
-            <a className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Kütüphane</a>
-            <a className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Gizlilik</a>
-            <a className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Lonca</a>
+            <a className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Library</a>
+            <a className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy</a>
+            <a className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Guild</a>
           </div>
         </footer>
       </div>
 
       {/* Floating Action Button (FAB) */}
       <button
-        onClick={() => setActiveTab('add')}
+        onClick={() => setActiveTab('logs')}
         className="fixed bottom-8 right-8 z-50 w-14 h-14 bg-primary text-on-primary border-2 border-on-background rounded-full shadow-brutal flex items-center justify-center hover:translate-y-0.5 active:translate-y-1 active:shadow-none transition-all"
-        title="Yeni Kitap Ekle"
+        title="Add New Log"
       >
         <Plus className="w-7 h-7" />
       </button>

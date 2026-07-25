@@ -35,7 +35,7 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
         setTestResponse(res.data);
       } else if (selectedEndpoint === 'createBook') {
         const samplePayload = {
-          title: "Test Kitap " + Math.floor(Math.random() * 1000),
+          title: "Test Volume " + Math.floor(Math.random() * 1000),
           itemType: "Book",
           defaultPageCount: 350,
           publishYear: new Date().toISOString(),
@@ -43,8 +43,8 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
           isbn: "9781234567890",
           coverImageUrl: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
           authorDto: {
-            name: "Test Yazar",
-            bio: "Otomatik test biyografisi"
+            name: "Test Author",
+            bio: "Automated test biography"
           }
         };
         const res = await axios.post('/api/book', samplePayload);
@@ -57,13 +57,13 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
       } else if (selectedEndpoint === 'createLog') {
         const samplePayload = {
           bookookDto: {
-            title: "Test Okuma Günlüğü " + Math.floor(Math.random() * 1000),
+            title: "Test Reading Log " + Math.floor(Math.random() * 1000),
             itemType: "Book",
             defaultPageCount: 280,
             publishYear: new Date().toISOString(),
             authorDto: {
-              name: "Günlük Yazarı",
-              bio: "Test biyografisi"
+              name: "Log Author",
+              bio: "Test biography"
             }
           },
           status: "Reading",
@@ -79,7 +79,7 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
           finishDate: new Date().toISOString(),
           readPages: 280,
           rating: 4.8,
-          reviewNotes: "API testi ile okuma durumu tamamlandı olarak güncellendi."
+          reviewNotes: "Reading status updated to Finished via API diagnostic test."
         };
         const res = await axios.put(`/api/logs/${logIdParam}`, samplePayload);
         setStatusCode(res.status);
@@ -92,9 +92,9 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
       } else {
         setStatusCode(500);
         setTestResponse({
-          error: "Bağlantı Reddedildi / Backend Çevrimdışı",
+          error: "Connection Refused / Backend Offline",
           message: err.message,
-          suggestion: "ASP.NET Core API'nin http://localhost:5233 üzerinde çalıştığından emin olun (api klasöründe dotnet run)."
+          suggestion: "Ensure ASP.NET Core API is running on http://localhost:5233 (dotnet run in api folder)."
         });
       }
     } finally {
@@ -110,10 +110,10 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-on-background pb-4">
         <div>
           <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">
-            API Tanılama & Test Paneli
+            API Diagnostics & Testing Panel
           </h1>
           <p className="font-body-lg text-body-lg text-on-surface-variant mt-1">
-            Backend API uç noktalarını canlı olarak test edin ve JSON yanıtlarını inceleyin.
+            Test backend API endpoints live and inspect JSON response payloads.
           </p>
         </div>
         <button
@@ -121,7 +121,7 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
           className="py-2.5 px-4 bg-surface border-2 border-on-background rounded-lg font-label-md text-label-md text-on-background shadow-brutal-sm hover:translate-y-0.5 active:translate-y-1 active:shadow-none transition-all flex items-center gap-2"
         >
           <RefreshCw size={16} className="text-secondary" />
-          <span>Bağlantı Durumunu Yenile</span>
+          <span>Refresh Connection Status</span>
         </button>
       </div>
 
@@ -131,12 +131,12 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
           <Server size={36} className={isOnline ? 'text-secondary' : 'text-primary'} />
           <div>
             <h3 className="font-headline-md text-headline-md text-on-background flex items-center gap-2">
-              Hedef API: <code className="bg-surface-container-high px-2 py-0.5 rounded border border-on-background text-xs font-mono">http://localhost:5233</code>
+              Target API: <code className="bg-surface-container-high px-2 py-0.5 rounded border border-on-background text-xs font-mono">http://localhost:5233</code>
             </h3>
             <p className="font-body-md text-xs text-on-surface-variant mt-1">
               {isOnline
-                ? 'ASP.NET Core Web API arka sunucusuna bağlandı.'
-                : 'API çevrimdışı. Ön yüz demo modunda yerel verileri kullanıyor.'}
+                ? 'Connected to ASP.NET Core Web API backend server.'
+                : 'API offline. Frontend operating in local demo mode.'}
             </p>
           </div>
         </div>
@@ -145,7 +145,7 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
           isOnline ? 'bg-secondary-container text-on-secondary-container' : 'bg-primary-container text-on-primary-container'
         }`}>
           {isOnline ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
-          <span>{isOnline ? 'HTTP 200 ÇEVRİMİÇİ' : 'DEMO MODU'}</span>
+          <span>{isOnline ? 'HTTP 200 ONLINE' : 'DEMO MODE'}</span>
         </div>
       </div>
 
@@ -155,12 +155,12 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
         <div className="lg:col-span-5 bg-surface border-2 border-on-background rounded-xl p-6 shadow-brutal space-y-6">
           <h3 className="font-headline-md text-headline-md text-on-background flex items-center gap-2 border-b-2 border-on-background/20 pb-3">
             <Terminal size={18} className="text-primary" />
-            <span>Uç Nokta Seçimi</span>
+            <span>Endpoint Selection</span>
           </h3>
 
           <div className="space-y-3 font-label-md">
             <div className="text-xs font-bold text-on-surface-variant uppercase tracking-wider pt-1">
-              Kitap Uç Noktaları (/api/book)
+              Book Endpoints (/api/book)
             </div>
 
             <button
@@ -206,7 +206,7 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
             </button>
 
             <div className="text-xs font-bold text-on-surface-variant uppercase tracking-wider pt-3 border-t-2 border-on-background/10">
-              Okuma Günlüğü Uç Noktaları (/api/logs)
+              Reading Log Endpoints (/api/logs)
             </div>
 
             <button
@@ -255,7 +255,7 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
           {selectedEndpoint === 'searchBooks' && (
             <div className="space-y-1">
               <label className="font-label-md text-xs font-bold text-on-background">
-                Aramalar Parametresi (?query=)
+                Search Query Parameter (?query=)
               </label>
               <input
                 type="text"
@@ -269,14 +269,14 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
           {selectedEndpoint === 'markLog' && (
             <div className="space-y-1">
               <label className="font-label-md text-xs font-bold text-on-background">
-                Günlük ID Parametresi (/api/logs/&#123;id&#125;)
+                Log ID Parameter (/api/logs/&#123;id&#125;)
               </label>
               <input
                 type="text"
                 value={logIdParam}
                 onChange={(e) => setLogIdParam(e.target.value)}
                 className="w-full bg-surface-container-low text-on-background border-2 border-on-background p-3 rounded-lg font-mono text-xs outline-none focus:border-secondary shadow-brutal-sm"
-                placeholder="Örn. 3fa85f64-5717-4562-b3fc-2c963f66afa6"
+                placeholder="e.g. 3fa85f64-5717-4562-b3fc-2c963f66afa6"
               />
             </div>
           )}
@@ -287,7 +287,7 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
             className="w-full py-3 bg-secondary text-on-secondary border-2 border-on-background rounded-lg font-label-md text-label-md font-bold shadow-brutal-sm hover:translate-y-0.5 active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2"
           >
             <Play size={16} />
-            <span>{loading ? 'İstek Gönderiliyor...' : 'İstek Çalıştır'}</span>
+            <span>{loading ? 'Sending Request...' : 'Run Request'}</span>
           </button>
         </div>
 
@@ -296,7 +296,7 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
           <div className="flex items-center justify-between border-b-2 border-on-background/20 pb-3">
             <h3 className="font-headline-md text-headline-md text-on-background flex items-center gap-2">
               <Code size={18} className="text-primary" />
-              <span>Yanıt Çıktısı (JSON)</span>
+              <span>Response Payload (JSON)</span>
             </h3>
 
             {statusCode !== null && (
@@ -319,7 +319,7 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
             ) : (
               <div className="h-full min-h-[280px] flex flex-col items-center justify-center text-center text-on-surface-variant space-y-2 font-label-md">
                 <Globe size={36} className="mx-auto opacity-40 text-primary" />
-                <p>Canlı JSON yanıtını görmek için "İstek Çalıştır" butonuna tıklayın.</p>
+                <p>Click "Run Request" to inspect the live JSON response payload.</p>
               </div>
             )}
           </div>
