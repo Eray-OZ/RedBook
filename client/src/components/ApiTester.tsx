@@ -7,9 +7,12 @@ interface ApiTesterProps {
   onRefreshHealth: () => void;
 }
 
+type EndpointKey = 'getBooks' | 'searchBooks' | 'createBook' | 'getLogs' | 'createLog' | 'markLog';
+
 export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth }) => {
-  const [selectedEndpoint, setSelectedEndpoint] = useState<'getBooks' | 'searchBooks' | 'createBook'>('getBooks');
+  const [selectedEndpoint, setSelectedEndpoint] = useState<EndpointKey>('getBooks');
   const [searchParam, setSearchParam] = useState('Dune');
+  const [logIdParam, setLogIdParam] = useState('00000000-0000-0000-0000-000000000000');
   const [testResponse, setTestResponse] = useState<any>(null);
   const [statusCode, setStatusCode] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
@@ -32,16 +35,53 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
         setTestResponse(res.data);
       } else if (selectedEndpoint === 'createBook') {
         const samplePayload = {
-          title: "Test Manuscript " + Math.floor(Math.random() * 1000),
+          title: "Test Kitap " + Math.floor(Math.random() * 1000),
           itemType: "Book",
           defaultPageCount: 350,
           publishYear: new Date().toISOString(),
-          author: {
-            name: "Test Author",
-            bio: "Automated test author"
+          googleBooksId: "sample-id-123",
+          isbn: "9781234567890",
+          coverImageUrl: "https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80",
+          authorDto: {
+            name: "Test Yazar",
+            bio: "Otomatik test biyografisi"
           }
         };
         const res = await axios.post('/api/book', samplePayload);
+        setStatusCode(res.status);
+        setTestResponse(res.data);
+      } else if (selectedEndpoint === 'getLogs') {
+        const res = await axios.get('/api/logs');
+        setStatusCode(res.status);
+        setTestResponse(res.data);
+      } else if (selectedEndpoint === 'createLog') {
+        const samplePayload = {
+          bookookDto: {
+            title: "Test Okuma Günlüğü " + Math.floor(Math.random() * 1000),
+            itemType: "Book",
+            defaultPageCount: 280,
+            publishYear: new Date().toISOString(),
+            authorDto: {
+              name: "Günlük Yazarı",
+              bio: "Test biyografisi"
+            }
+          },
+          status: "Reading",
+          startDate: new Date().toISOString(),
+          isReRead: false
+        };
+        const res = await axios.post('/api/logs', samplePayload);
+        setStatusCode(res.status);
+        setTestResponse(res.data);
+      } else if (selectedEndpoint === 'markLog') {
+        const samplePayload = {
+          status: "Finished",
+          finishDate: new Date().toISOString(),
+          readPages: 280,
+          rating: 4.8,
+          reviewNotes: "API testi ile okuma durumu tamamlandı olarak güncellendi."
+        };
+        const res = await axios.put(`/api/logs/${logIdParam}`, samplePayload);
         setStatusCode(res.status);
         setTestResponse(res.data);
       }
@@ -52,9 +92,9 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
       } else {
         setStatusCode(500);
         setTestResponse({
-          error: "Connection Refused / Backend Offline",
+          error: "Bağlantı Reddedildi / Backend Çevrimdışı",
           message: err.message,
-          suggestion: "Ensure ASP.NET Core API is running on http://localhost:5233 (dotnet run in api folder)"
+          suggestion: "ASP.NET Core API'nin http://localhost:5233 üzerinde çalıştığından emin olun (api klasöründe dotnet run)."
         });
       }
     } finally {
@@ -67,111 +107,176 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
   return (
     <div className="space-y-8 pb-16">
       {/* Title Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#d4af37]/20 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-on-background pb-4">
         <div>
-          <h1 className="font-display text-3xl md:text-4xl text-[#e4e2e1] font-black uppercase tracking-wider italic">
-            API Diagnostics & Endpoint Tester
+          <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">
+            API Tanılama & Test Paneli
           </h1>
-          <p className="font-label text-xs text-[#e4e2e1]/70 uppercase tracking-widest mt-1">
-            Test and inspect backend API endpoints for RedBook in real-time.
+          <p className="font-body-lg text-body-lg text-on-surface-variant mt-1">
+            Backend API uç noktalarını canlı olarak test edin ve JSON yanıtlarını inceleyin.
           </p>
         </div>
         <button
           onClick={onRefreshHealth}
-          className="illuminated-btn bg-[#1b1c1c] text-[#d4af37] border-[#d4af37]/40"
+          className="py-2.5 px-4 bg-surface border-2 border-on-background rounded-lg font-label-md text-label-md text-on-background shadow-brutal-sm hover:translate-y-0.5 active:translate-y-1 active:shadow-none transition-all flex items-center gap-2"
         >
-          <RefreshCw size={16} />
-          <span>Ping Status</span>
+          <RefreshCw size={16} className="text-secondary" />
+          <span>Bağlantı Durumunu Yenile</span>
         </button>
       </div>
 
       {/* Backend Status Card */}
-      <div className="parchment-card p-6 rounded-sm border-2 border-[#d4af37] flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xl">
+      <div className="bg-surface border-2 border-on-background rounded-xl p-6 shadow-brutal flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <Server size={36} className={isOnline ? 'text-emerald-800' : 'text-[#9e1b1b]'} />
+          <Server size={36} className={isOnline ? 'text-secondary' : 'text-primary'} />
           <div>
-            <h3 className="font-display font-bold text-lg text-[#383014] flex items-center gap-2">
-              Target API: <code className="bg-[#1a1512] text-[#d4af37] px-2 py-0.5 rounded text-xs">http://localhost:5233</code>
+            <h3 className="font-headline-md text-headline-md text-on-background flex items-center gap-2">
+              Hedef API: <code className="bg-surface-container-high px-2 py-0.5 rounded border border-on-background text-xs font-mono">http://localhost:5233</code>
             </h3>
-            <p className="font-body text-xs text-[#383014]/80 mt-1">
+            <p className="font-body-md text-xs text-on-surface-variant mt-1">
               {isOnline
-                ? 'Connected to ASP.NET Core Web API backend.'
-                : 'Backend API offline. Frontend proxy using demo mock fallbacks.'}
+                ? 'ASP.NET Core Web API arka sunucusuna bağlandı.'
+                : 'API çevrimdışı. Ön yüz demo modunda yerel verileri kullanıyor.'}
             </p>
           </div>
         </div>
 
-        <div className={`px-4 py-2 font-label font-bold text-xs uppercase tracking-widest rounded-sm border flex items-center gap-2 ${
-          isOnline ? 'bg-emerald-900 text-emerald-200 border-emerald-500' : 'bg-[#9e1b1b] text-white border-[#d4af37]'
+        <div className={`px-4 py-2 font-label-md font-bold text-xs uppercase tracking-widest rounded-lg border-2 border-on-background flex items-center gap-2 shadow-brutal-sm ${
+          isOnline ? 'bg-secondary-container text-on-secondary-container' : 'bg-primary-container text-on-primary-container'
         }`}>
           {isOnline ? <CheckCircle size={16} /> : <AlertTriangle size={16} />}
-          <span>{isOnline ? 'HTTP 200 ONLINE' : 'DEMO MODE'}</span>
+          <span>{isOnline ? 'HTTP 200 ÇEVRİMİÇİ' : 'DEMO MODU'}</span>
         </div>
       </div>
 
       {/* Main Grid */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
         {/* Left Control Panel */}
-        <div className="lg:col-span-5 parchment-card p-6 rounded-sm border border-[#d4af37] space-y-6">
-          <h3 className="font-display font-bold text-lg text-[#383014] flex items-center gap-2 border-b border-[#383014]/15 pb-3 italic">
-            <Terminal size={18} className="text-[#9e1b1b]" />
-            <span>Select Endpoint</span>
+        <div className="lg:col-span-5 bg-surface border-2 border-on-background rounded-xl p-6 shadow-brutal space-y-6">
+          <h3 className="font-headline-md text-headline-md text-on-background flex items-center gap-2 border-b-2 border-on-background/20 pb-3">
+            <Terminal size={18} className="text-primary" />
+            <span>Uç Nokta Seçimi</span>
           </h3>
 
-          <div className="space-y-3 font-label">
+          <div className="space-y-3 font-label-md">
+            <div className="text-xs font-bold text-on-surface-variant uppercase tracking-wider pt-1">
+              Kitap Uç Noktaları (/api/book)
+            </div>
+
             <button
               onClick={() => setSelectedEndpoint('getBooks')}
-              className={`w-full text-left p-3.5 rounded-sm border font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-all ${
+              className={`w-full text-left p-3 rounded-lg border-2 border-on-background font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-all ${
                 selectedEndpoint === 'getBooks'
-                  ? 'bg-[#1a1512] text-[#d4af37] border-[#d4af37]'
-                  : 'bg-[#f4ecd8] text-[#383014] border-[#383014]/20 hover:border-[#d4af37]'
+                  ? 'bg-primary text-on-primary shadow-brutal-sm'
+                  : 'bg-surface-container-low text-on-background hover:bg-surface-variant'
               }`}
             >
               <div className="flex items-center gap-2">
-                <span className="badge-crimson">GET</span>
+                <span className="px-2 py-0.5 bg-secondary text-on-secondary border border-on-background rounded text-[10px]">GET</span>
                 <span>/api/book</span>
               </div>
             </button>
 
             <button
               onClick={() => setSelectedEndpoint('searchBooks')}
-              className={`w-full text-left p-3.5 rounded-sm border font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-all ${
+              className={`w-full text-left p-3 rounded-lg border-2 border-on-background font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-all ${
                 selectedEndpoint === 'searchBooks'
-                  ? 'bg-[#1a1512] text-[#d4af37] border-[#d4af37]'
-                  : 'bg-[#f4ecd8] text-[#383014] border-[#383014]/20 hover:border-[#d4af37]'
+                  ? 'bg-primary text-on-primary shadow-brutal-sm'
+                  : 'bg-surface-container-low text-on-background hover:bg-surface-variant'
               }`}
             >
               <div className="flex items-center gap-2">
-                <span className="badge-crimson">GET</span>
+                <span className="px-2 py-0.5 bg-secondary text-on-secondary border border-on-background rounded text-[10px]">GET</span>
                 <span>/api/book/search-google-books</span>
               </div>
             </button>
 
             <button
               onClick={() => setSelectedEndpoint('createBook')}
-              className={`w-full text-left p-3.5 rounded-sm border font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-all ${
+              className={`w-full text-left p-3 rounded-lg border-2 border-on-background font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-all ${
                 selectedEndpoint === 'createBook'
-                  ? 'bg-[#1a1512] text-[#d4af37] border-[#d4af37]'
-                  : 'bg-[#f4ecd8] text-[#383014] border-[#383014]/20 hover:border-[#d4af37]'
+                  ? 'bg-primary text-on-primary shadow-brutal-sm'
+                  : 'bg-surface-container-low text-on-background hover:bg-surface-variant'
               }`}
             >
               <div className="flex items-center gap-2">
-                <span className="badge-gold">POST</span>
+                <span className="px-2 py-0.5 bg-tertiary text-on-tertiary border border-on-background rounded text-[10px]">POST</span>
                 <span>/api/book</span>
+              </div>
+            </button>
+
+            <div className="text-xs font-bold text-on-surface-variant uppercase tracking-wider pt-3 border-t-2 border-on-background/10">
+              Okuma Günlüğü Uç Noktaları (/api/logs)
+            </div>
+
+            <button
+              onClick={() => setSelectedEndpoint('getLogs')}
+              className={`w-full text-left p-3 rounded-lg border-2 border-on-background font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-all ${
+                selectedEndpoint === 'getLogs'
+                  ? 'bg-primary text-on-primary shadow-brutal-sm'
+                  : 'bg-surface-container-low text-on-background hover:bg-surface-variant'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 bg-secondary text-on-secondary border border-on-background rounded text-[10px]">GET</span>
+                <span>/api/logs</span>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setSelectedEndpoint('createLog')}
+              className={`w-full text-left p-3 rounded-lg border-2 border-on-background font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-all ${
+                selectedEndpoint === 'createLog'
+                  ? 'bg-primary text-on-primary shadow-brutal-sm'
+                  : 'bg-surface-container-low text-on-background hover:bg-surface-variant'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 bg-tertiary text-on-tertiary border border-on-background rounded text-[10px]">POST</span>
+                <span>/api/logs</span>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setSelectedEndpoint('markLog')}
+              className={`w-full text-left p-3 rounded-lg border-2 border-on-background font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-all ${
+                selectedEndpoint === 'markLog'
+                  ? 'bg-primary text-on-primary shadow-brutal-sm'
+                  : 'bg-surface-container-low text-on-background hover:bg-surface-variant'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 bg-secondary-container text-on-secondary-container border border-on-background rounded text-[10px]">PUT</span>
+                <span>/api/logs/&#123;id&#125;</span>
               </div>
             </button>
           </div>
 
           {selectedEndpoint === 'searchBooks' && (
             <div className="space-y-1">
-              <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014]">
-                Query Parameter (?query=)
+              <label className="font-label-md text-xs font-bold text-on-background">
+                Aramalar Parametresi (?query=)
               </label>
               <input
                 type="text"
                 value={searchParam}
                 onChange={(e) => setSearchParam(e.target.value)}
-                className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                className="w-full bg-surface-container-low text-on-background border-2 border-on-background p-3 rounded-lg font-body-md outline-none focus:border-secondary shadow-brutal-sm"
+              />
+            </div>
+          )}
+
+          {selectedEndpoint === 'markLog' && (
+            <div className="space-y-1">
+              <label className="font-label-md text-xs font-bold text-on-background">
+                Günlük ID Parametresi (/api/logs/&#123;id&#125;)
+              </label>
+              <input
+                type="text"
+                value={logIdParam}
+                onChange={(e) => setLogIdParam(e.target.value)}
+                className="w-full bg-surface-container-low text-on-background border-2 border-on-background p-3 rounded-lg font-mono text-xs outline-none focus:border-secondary shadow-brutal-sm"
+                placeholder="Örn. 3fa85f64-5717-4562-b3fc-2c963f66afa6"
               />
             </div>
           )}
@@ -179,28 +284,28 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
           <button
             onClick={handleRunEndpoint}
             disabled={loading}
-            className="illuminated-btn w-full py-3"
+            className="w-full py-3 bg-secondary text-on-secondary border-2 border-on-background rounded-lg font-label-md text-label-md font-bold shadow-brutal-sm hover:translate-y-0.5 active:translate-y-1 active:shadow-none transition-all flex items-center justify-center gap-2"
           >
             <Play size={16} />
-            <span>{loading ? 'Executing Request...' : 'Send Request'}</span>
+            <span>{loading ? 'İstek Gönderiliyor...' : 'İstek Çalıştır'}</span>
           </button>
         </div>
 
         {/* Right Output Panel */}
-        <div className="lg:col-span-7 bg-[#1a1512] p-6 rounded-sm border-2 border-[#d4af37] flex flex-col justify-between space-y-4 shadow-2xl">
-          <div className="flex items-center justify-between border-b border-[#d4af37]/20 pb-3">
-            <h3 className="font-display font-bold text-lg text-[#d4af37] flex items-center gap-2 italic">
-              <Code size={18} />
-              <span>Response Payload</span>
+        <div className="lg:col-span-7 bg-surface border-2 border-on-background rounded-xl p-6 shadow-brutal flex flex-col justify-between space-y-4">
+          <div className="flex items-center justify-between border-b-2 border-on-background/20 pb-3">
+            <h3 className="font-headline-md text-headline-md text-on-background flex items-center gap-2">
+              <Code size={18} className="text-primary" />
+              <span>Yanıt Çıktısı (JSON)</span>
             </h3>
 
             {statusCode !== null && (
-              <div className="flex items-center gap-2 font-label text-xs font-bold">
-                <span className={`px-2.5 py-1 rounded text-white ${statusCode >= 200 && statusCode < 300 ? 'bg-emerald-900' : 'bg-[#9e1b1b]'}`}>
+              <div className="flex items-center gap-2 font-label-md text-xs font-bold">
+                <span className={`px-2.5 py-1 rounded-full border border-on-background ${statusCode >= 200 && statusCode < 300 ? 'bg-secondary-container text-on-secondary-container' : 'bg-error-container text-on-error-container'}`}>
                   HTTP {statusCode}
                 </span>
                 {executionTime !== null && (
-                  <span className="px-2.5 py-1 bg-[#131313] text-[#d4af37] border border-[#d4af37]/40 rounded">
+                  <span className="px-2.5 py-1 bg-surface-container-high border border-on-background rounded-full text-on-background">
                     {executionTime} ms
                   </span>
                 )}
@@ -208,13 +313,13 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
             )}
           </div>
 
-          <div className="bg-[#0e0e0e] border border-[#d4af37]/30 rounded-sm p-4 min-h-[320px] max-h-[480px] overflow-auto font-mono text-xs text-[#f4ecd8] leading-relaxed">
+          <div className="bg-surface-container-high border-2 border-on-background rounded-lg p-4 min-h-[320px] max-h-[480px] overflow-auto font-mono text-xs text-on-background leading-relaxed shadow-brutal-sm">
             {testResponse ? (
               <pre>{JSON.stringify(testResponse, null, 2)}</pre>
             ) : (
-              <div className="h-full min-h-[280px] flex flex-col items-center justify-center text-center text-[#d4af37]/50 space-y-2 font-label">
-                <Globe size={36} className="mx-auto opacity-40" />
-                <p>Click "Send Request" to view live JSON response.</p>
+              <div className="h-full min-h-[280px] flex flex-col items-center justify-center text-center text-on-surface-variant space-y-2 font-label-md">
+                <Globe size={36} className="mx-auto opacity-40 text-primary" />
+                <p>Canlı JSON yanıtını görmek için "İstek Çalıştır" butonuna tıklayın.</p>
               </div>
             )}
           </div>

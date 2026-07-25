@@ -1,4 +1,4 @@
-﻿using api.Application.DTOs.Book;
+using api.Application.DTOs.Book;
 using api.Core.Entities;
 
 namespace api.Application.Mappings;
@@ -18,7 +18,7 @@ public static class BookMapper
             GoogleBooksId = bookDto.GoogleBooksId,
             Isbn = bookDto.Isbn,
             CoverImageUrl = bookDto.CoverImageUrl,
-            Author = bookDto.AuthorDto.ToAuthorFromCreateDto()
+            Author = bookDto.AuthorDto.ToAuthorFromCreateDto(),
         };
     }
 
@@ -31,7 +31,8 @@ public static class BookMapper
             ItemType = bookEntity.ItemType,
             DefaultPageCount = bookEntity.DefaultPageCount,
             PublishYear = bookEntity.PublishYear,
-            AuthorName = bookEntity.Author!.Name
+            AuthorName = bookEntity.Author!.Name,
+            CoverImage = bookEntity.CoverImageUrl
         };
     }
 

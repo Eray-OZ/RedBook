@@ -1,10 +1,10 @@
 import axios from 'axios';
-import type { Book, CreateBookDto, GoogleBookSearchResult } from '../types/book';
+import type { Book, CreateBookDto, GoogleBookSearchResult, ReadingLog, CreateLogDto, MarkLogDto } from '../types/book';
 
 // Base client for API requests
 const API_BASE_URL = '/api';
 
-const apiClient = axios.create({
+export const apiClient = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
@@ -12,7 +12,7 @@ const apiClient = axios.create({
   timeout: 8000,
 });
 
-// Demo fallback mock data when backend is not running
+// Fallback mock data when backend API is unavailable
 const MOCK_BOOKS: Book[] = [
   {
     id: '1',
@@ -28,7 +28,7 @@ const MOCK_BOOKS: Book[] = [
   {
     id: '2',
     title: 'Clean Code: A Handbook of Agile Software Craftsmanship',
-    itemType: 'EBook',
+    itemType: 'Book',
     defaultPageCount: 464,
     publishYear: '2008-08-01T00:00:00Z',
     authorName: 'Robert C. Martin',
@@ -49,14 +49,49 @@ const MOCK_BOOKS: Book[] = [
   }
 ];
 
+const MOCK_LOGS: ReadingLog[] = [
+  {
+    id: '101',
+    bookName: 'Dune',
+    itemType: 'Book',
+    status: 'Reading',
+    startDate: '2026-01-10T00:00:00Z',
+    readPages: 250,
+    rating: 4.5,
+    reviewNotes: 'Captivating world building and intricate political depth.',
+    isReRead: false,
+  },
+  {
+    id: '102',
+    bookName: 'The Hobbit',
+    itemType: 'AudioBook',
+    status: 'Finished',
+    startDate: '2025-12-01T00:00:00Z',
+    finishDate: '2025-12-25T00:00:00Z',
+    readPages: 310,
+    rating: 5.0,
+    reviewNotes: 'Masterpiece of fantasy story telling.',
+    isReRead: true,
+  }
+];
+
 let localMockBooks = [...MOCK_BOOKS];
+let localMockLogs = [...MOCK_LOGS];
 
 export const BookService = {
   // GET /api/book
   async getBooks(): Promise<{ books: Book[]; isMock: boolean }> {
     try {
-      const response = await apiClient.get<Book[]>('/book');
-      return { books: response.data, isMock: false };
+      const response = await apiClient.get<any[]>('/book');
+      const books: Book[] = (response.data || []).map((b: any) => {
+        const cover = b.coverImage || b.coverImageUrl || b.coverUrl;
+        return {
+          ...b,
+          coverImage: cover,
+          coverImageUrl: cover,
+        };
+      });
+      return { books, isMock: false };
     } catch (error) {
       console.warn('Backend API unavailable, using local mock data:', error);
       return { books: localMockBooks, isMock: true };
@@ -68,7 +103,15 @@ export const BookService = {
     try {
       const response = await apiClient.post<Book>('/book', bookDto);
       return { book: response.data, isMock: false };
-    } catch (error) {
+    } catch (error: any) {
+      if (error.response) {
+        console.error('Backend returned error during createBook:', error.response.status, error.response.data);
+        throw new Error(
+          typeof error.response.data === 'string'
+            ? error.response.data
+            : JSON.stringify(error.response.data) || `Backend HTTP Error ${error.response.status}`
+        );
+      }
       console.warn('Backend API unavailable, saving to local mock state:', error);
       const newBook: Book = {
         id: String(Date.now()),
@@ -76,10 +119,11 @@ export const BookService = {
         itemType: bookDto.itemType,
         defaultPageCount: bookDto.defaultPageCount,
         publishYear: bookDto.publishYear,
-        authorName: bookDto.author.name,
-        author: bookDto.author,
+        authorName: bookDto.authorDto?.name || 'Unknown Author',
+        author: bookDto.authorDto,
         googleBooksId: bookDto.googleBooksId,
         isbn: bookDto.isbn,
+        coverImage: bookDto.coverImageUrl || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=80',
         coverImageUrl: bookDto.coverImageUrl || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?auto=format&fit=crop&w=400&q=80',
       };
       localMockBooks = [newBook, ...localMockBooks];
@@ -96,17 +140,24 @@ export const BookService = {
       });
       
       const formattedResults: GoogleBookSearchResult[] = (response.data || []).map((item: any) => {
-        const volumeInfo = item.volumeInfo || item;
-        const imageLinks = volumeInfo.imageLinks || {};
+        const googleId = item.googleBooksId || item.id || String(Math.random());
+        const title = item.title || item.volumeInfo?.title || 'Untitled Book';
+        const authorName = item.authorName || item.volumeInfo?.authors?.[0] || 'Unknown Author';
+        const pageCount = item.pageCount || item.volumeInfo?.pageCount || 200;
+        const publishYear = item.publishYear || item.volumeInfo?.publishedDate || '2024';
+        const coverImageUrl = item.coverImage || item.coverImageUrl || item.volumeInfo?.imageLinks?.thumbnail || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
+
         return {
-          id: item.id || volumeInfo.id || String(Math.random()),
-          title: volumeInfo.title || 'Untitled Book',
-          authors: volumeInfo.authors || (volumeInfo.author ? [volumeInfo.author] : ['Unknown Author']),
-          pageCount: volumeInfo.pageCount || volumeInfo.defaultPageCount || 200,
-          publishedDate: volumeInfo.publishedDate || volumeInfo.publishYear || '2024',
-          description: volumeInfo.description || 'No description available.',
-          coverUrl: imageLinks.thumbnail || imageLinks.smallThumbnail || volumeInfo.coverImageUrl || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80',
-          isbn: volumeInfo.industryIdentifiers?.[0]?.identifier || volumeInfo.isbn || '',
+          id: googleId,
+          title,
+          authorName,
+          authors: [authorName],
+          pageCount,
+          publishedDate: publishYear,
+          publishYear,
+          description: item.description || 'Google Books search result',
+          coverUrl: coverImageUrl,
+          coverImageUrl,
         };
       });
 
@@ -118,14 +169,19 @@ export const BookService = {
         const items = res.data.items || [];
         const formatted: GoogleBookSearchResult[] = items.map((item: any) => {
           const info = item.volumeInfo || {};
+          const author = info.authors?.[0] || 'Unknown Author';
+          const cover = info.imageLinks?.thumbnail?.replace('http:', 'https:') || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80';
           return {
             id: item.id,
             title: info.title || 'Untitled',
-            authors: info.authors || ['Unknown Author'],
+            authorName: author,
+            authors: info.authors || [author],
             pageCount: info.pageCount || 150,
             publishedDate: info.publishedDate || '2023',
+            publishYear: info.publishedDate || '2023',
             description: info.description || 'No description provided.',
-            coverUrl: info.imageLinks?.thumbnail?.replace('http:', 'https:') || 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=400&q=80',
+            coverUrl: cover,
+            coverImageUrl: cover,
             isbn: info.industryIdentifiers?.[0]?.identifier || '',
           };
         });
@@ -143,6 +199,121 @@ export const BookService = {
       return { online: true, message: 'Backend connected successfully (http://localhost:5233).' };
     } catch {
       return { online: false, message: 'Backend disconnected. Operating in Fallback/Demo mode.' };
+    }
+  }
+};
+
+export const ReadingLogService = {
+  // GET /api/logs
+  async getLogs(): Promise<{ logs: ReadingLog[]; isMock: boolean }> {
+    try {
+      const response = await apiClient.get<any[]>('/logs');
+      const logs: ReadingLog[] = (response.data || []).map((l: any) => {
+        const cover = l.coverImage || l.coverImageUrl || l.book?.coverImageUrl || l.book?.coverImage;
+        return {
+          ...l,
+          coverImage: cover,
+          coverImageUrl: cover,
+        };
+      });
+      return { logs, isMock: false };
+    } catch (error) {
+      console.warn('Backend Log API unavailable, using local mock data:', error);
+      return { logs: localMockLogs, isMock: true };
+    }
+  },
+
+  // POST /api/logs
+  async createLog(logDto: CreateLogDto): Promise<{ log: ReadingLog; isMock: boolean }> {
+    try {
+      const response = await apiClient.post<any>('/logs', logDto);
+      const serverData = response.data;
+      const cover = serverData.coverImage || serverData.coverImageUrl || serverData.book?.coverImageUrl || serverData.book?.coverImage;
+      const formattedLog: ReadingLog = {
+        id: serverData.id || String(Date.now()),
+        bookName: serverData.bookName || serverData.book?.title || logDto.bookookDto.title,
+        itemType: serverData.itemType || serverData.book?.itemType || logDto.bookookDto.itemType,
+        status: serverData.status || logDto.status,
+        startDate: serverData.startDate || logDto.startDate,
+        finishDate: serverData.finishDate,
+        readPages: serverData.readPages,
+        rating: serverData.rating || 0,
+        reviewNotes: serverData.reviewNotes,
+        isReRead: serverData.isReRead ?? logDto.isReRead,
+        coverImage: cover,
+        coverImageUrl: cover,
+      };
+      return { log: formattedLog, isMock: false };
+    } catch (error: any) {
+      if (error.response) {
+        console.error('Backend returned error during createLog:', error.response.status, error.response.data);
+        throw new Error(
+          typeof error.response.data === 'string'
+            ? error.response.data
+            : JSON.stringify(error.response.data) || `Backend HTTP Error ${error.response.status}`
+        );
+      }
+      console.warn('Backend Log API unavailable, saving to local mock state:', error);
+      const newLog: ReadingLog = {
+        id: String(Date.now()),
+        bookName: logDto.bookookDto.title,
+        itemType: logDto.bookookDto.itemType,
+        status: logDto.status,
+        startDate: logDto.startDate,
+        rating: 0,
+        isReRead: logDto.isReRead,
+        coverImage: logDto.bookookDto.coverImageUrl,
+        coverImageUrl: logDto.bookookDto.coverImageUrl,
+      };
+      localMockLogs = [newLog, ...localMockLogs];
+      return { log: newLog, isMock: true };
+    }
+  },
+
+  // PUT /api/logs/{id}
+  async markLog(id: string, markDto: MarkLogDto): Promise<{ log: ReadingLog; isMock: boolean }> {
+    try {
+      const response = await apiClient.put<any>(`/logs/${id}`, markDto);
+      const serverData = response.data;
+      const cover = serverData.coverImage || serverData.coverImageUrl || serverData.book?.coverImageUrl || serverData.book?.coverImage;
+      const formattedLog: ReadingLog = {
+        id: serverData.id || id,
+        bookName: serverData.bookName || serverData.book?.title || 'Manuscript',
+        itemType: serverData.itemType || serverData.book?.itemType || 'Book',
+        status: serverData.status || markDto.status,
+        startDate: serverData.startDate,
+        finishDate: serverData.finishDate || markDto.finishDate,
+        readPages: serverData.readPages ?? markDto.readPages,
+        rating: serverData.rating ?? markDto.rating,
+        reviewNotes: serverData.reviewNotes ?? markDto.reviewNotes,
+        isReRead: serverData.isReRead ?? false,
+        coverImage: cover,
+        coverImageUrl: cover,
+      };
+      return { log: formattedLog, isMock: false };
+    } catch (error: any) {
+      if (error.response) {
+        console.error('Backend returned error during markLog:', error.response.status, error.response.data);
+        throw new Error(
+          typeof error.response.data === 'string'
+            ? error.response.data
+            : JSON.stringify(error.response.data) || `Backend HTTP Error ${error.response.status}`
+        );
+      }
+      console.warn('Backend Log API unavailable, updating local mock state:', error);
+      const index = localMockLogs.findIndex(l => l.id === id);
+      if (index !== -1) {
+        localMockLogs[index] = {
+          ...localMockLogs[index],
+          status: markDto.status,
+          finishDate: markDto.finishDate || localMockLogs[index].finishDate,
+          readPages: markDto.readPages ?? localMockLogs[index].readPages,
+          rating: markDto.rating ?? localMockLogs[index].rating,
+          reviewNotes: markDto.reviewNotes ?? localMockLogs[index].reviewNotes,
+        };
+        return { log: localMockLogs[index], isMock: true };
+      }
+      throw error;
     }
   }
 };

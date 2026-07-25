@@ -19,8 +19,8 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({
   const [publishYear, setPublishYear] = useState<string>(
     initialData?.publishYear ? initialData.publishYear.substring(0, 10) : new Date().toISOString().substring(0, 10)
   );
-  const [authorName, setAuthorName] = useState(initialData?.author?.name || '');
-  const [authorBio, setAuthorBio] = useState(initialData?.author?.bio || '');
+  const [authorName, setAuthorName] = useState(initialData?.authorDto?.name || '');
+  const [authorBio, setAuthorBio] = useState(initialData?.authorDto?.bio || '');
   const [coverImageUrl, setCoverImageUrl] = useState(initialData?.coverImageUrl || '');
   const [googleBooksId] = useState(initialData?.googleBooksId || '');
   const [isbn, setIsbn] = useState(initialData?.isbn || '');
@@ -31,15 +31,15 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim()) {
-      setErrorMsg('Book title is required.');
+      setErrorMsg('Kitap başlığı zorunludur.');
       return;
     }
     if (!authorName.trim()) {
-      setErrorMsg('Author name is required.');
+      setErrorMsg('Yazar adı zorunludur.');
       return;
     }
     if (pageCount <= 0) {
-      setErrorMsg('Page count must be greater than 0.');
+      setErrorMsg('Sayfa sayısı 0\'dan büyük olmalıdır.');
       return;
     }
 
@@ -54,7 +54,7 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({
       googleBooksId: googleBooksId || undefined,
       isbn: isbn || undefined,
       coverImageUrl: coverImageUrl || undefined,
-      author: {
+      authorDto: {
         name: authorName,
         bio: authorBio || undefined,
       },
@@ -63,7 +63,7 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({
     try {
       await onSubmit(dto);
     } catch (err: any) {
-      setErrorMsg(err.message || 'Failed to archive manuscript. Check connection.');
+      setErrorMsg(err.message || 'Kitap eklenemedi. Bağlantıyı kontrol edin.');
     } finally {
       setIsSubmitting(false);
     }
@@ -72,28 +72,28 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({
   return (
     <div className="max-w-4xl mx-auto pb-16 space-y-6">
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#d4af37]/20 pb-4">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b-2 border-on-background pb-4">
         <div>
           <button
             onClick={onCancel}
-            className="flex items-center gap-2 text-[#d4af37] font-label text-xs font-bold uppercase tracking-widest hover:text-[#ffb4ac] transition-colors mb-2 ink-bleed-hover"
+            className="flex items-center gap-2 text-primary font-label-md text-xs font-bold hover:underline mb-2"
           >
             <ArrowLeft size={16} />
-            <span>Return to Archive</span>
+            <span>Kütüphaneye Dön</span>
           </button>
-          <h1 className="font-display text-3xl font-black text-[#e4e2e1] uppercase tracking-wider italic">
-            Inscribe New Folio
+          <h1 className="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background">
+            Yeni Kitap Ekle
           </h1>
-          <p className="font-label text-xs text-[#e4e2e1]/70 uppercase tracking-widest mt-1">
-            Record title, scribe metadata, and medium into the master library catalog.
+          <p className="font-body-lg text-body-lg text-on-surface-variant mt-1">
+            Kütüphanene eklemek istediğin eserin bilgilerini doldur.
           </p>
         </div>
       </div>
 
-      {/* Form Container (Parchment Folio) */}
-      <div className="parchment-card p-6 sm:p-10 rounded-sm border-2 border-[#d4af37] shadow-2xl">
+      {/* Form Container */}
+      <div className="bg-surface border-2 border-on-background rounded-xl p-6 sm:p-10 shadow-brutal">
         {errorMsg && (
-          <div className="bg-[#9e1b1b]/20 border-2 border-[#9e1b1b] text-[#9e1b1b] p-4 rounded-sm mb-6 font-body font-bold text-sm">
+          <div className="bg-error-container border-2 border-on-background text-on-error-container p-4 rounded-lg mb-6 font-label-md font-bold text-sm">
             {errorMsg}
           </div>
         )}
@@ -101,81 +101,78 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({
         <form onSubmit={handleSubmit} className="space-y-8">
           {/* Section 1: Title & Type */}
           <div className="space-y-4">
-            <h3 className="font-display text-xl font-bold text-[#383014] border-b border-[#383014]/20 pb-2 italic">
-              1. Folio Specifications
+            <h3 className="font-headline-md text-headline-md text-on-background border-b-2 border-on-background/20 pb-2">
+              1. Eser Detayları
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="sm:col-span-2 space-y-1">
-                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014] flex items-center gap-1.5">
-                  <Book size={14} className="text-[#9e1b1b]" /> Title of Manuscript *
+                <label className="font-label-md text-xs font-bold text-on-background flex items-center gap-1.5">
+                  <Book size={14} className="text-primary" /> Kitap Adı *
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. The Name of the Rose"
+                  placeholder="Örn. Yüzüklerin Efendisi"
                   value={title}
                   onChange={(e) => setTitle(e.target.value)}
-                  className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                  className="w-full bg-surface-container-low text-on-background border-2 border-on-background p-3 rounded-lg font-body-md outline-none focus:border-secondary shadow-brutal-sm"
                   required
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014]">
-                  Medium Format (ItemType) *
+                <label className="font-label-md text-xs font-bold text-on-background">
+                  Eser Formatı *
                 </label>
                 <select
                   value={itemType}
                   onChange={(e) => setItemType(e.target.value as ItemType)}
-                  className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                  className="w-full bg-surface-container-low text-on-background border-2 border-on-background p-3 rounded-lg font-body-md outline-none focus:border-secondary shadow-brutal-sm"
                 >
-                  <option value="Book">Book (Hardcover/Paperback)</option>
-                  <option value="EBook">EBook</option>
-                  <option value="AudioBook">AudioBook</option>
-                  <option value="Magazine">Magazine</option>
-                  <option value="Journal">Academic Journal</option>
-                  <option value="Comic">Comic / Graphic Novel</option>
-                  <option value="Other">Other Archives</option>
+                  <option value="Book">Basılı Kitap</option>
+                  <option value="Comic">Çizgi Roman / Manga</option>
+                  <option value="AudioBook">Sesli Kitap</option>
+                  <option value="Other">Diğer</option>
                 </select>
               </div>
 
               <div className="space-y-1">
-                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014] flex items-center gap-1.5">
-                  <FileText size={14} className="text-[#9e1b1b]" /> Total Page Count *
+                <label className="font-label-md text-xs font-bold text-on-background flex items-center gap-1.5">
+                  <FileText size={14} className="text-primary" /> Sayfa Sayısı *
                 </label>
                 <input
                   type="number"
                   min="1"
                   value={pageCount}
                   onChange={(e) => setPageCount(Number(e.target.value))}
-                  className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                  className="w-full bg-surface-container-low text-on-background border-2 border-on-background p-3 rounded-lg font-body-md outline-none focus:border-secondary shadow-brutal-sm"
                   required
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014] flex items-center gap-1.5">
-                  <Calendar size={14} className="text-[#9e1b1b]" /> Publication Date *
+                <label className="font-label-md text-xs font-bold text-on-background flex items-center gap-1.5">
+                  <Calendar size={14} className="text-primary" /> Yayın Tarihi *
                 </label>
                 <input
                   type="date"
                   value={publishYear}
                   onChange={(e) => setPublishYear(e.target.value)}
-                  className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                  className="w-full bg-surface-container-low text-on-background border-2 border-on-background p-3 rounded-lg font-body-md outline-none focus:border-secondary shadow-brutal-sm"
                   required
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014] flex items-center gap-1.5">
-                  <Hash size={14} className="text-[#9e1b1b]" /> ISBN Code (Optional)
+                <label className="font-label-md text-xs font-bold text-on-background flex items-center gap-1.5">
+                  <Hash size={14} className="text-primary" /> ISBN Numarası (Opsiyonel)
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. 978-0141187761"
+                  placeholder="978-0141187761"
                   value={isbn}
                   onChange={(e) => setIsbn(e.target.value)}
-                  className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                  className="w-full bg-surface-container-low text-on-background border-2 border-on-background p-3 rounded-lg font-body-md outline-none focus:border-secondary shadow-brutal-sm"
                 />
               </div>
             </div>
@@ -183,35 +180,35 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({
 
           {/* Section 2: Author Details */}
           <div className="space-y-4">
-            <h3 className="font-display text-xl font-bold text-[#383014] border-b border-[#383014]/20 pb-2 italic">
-              2. Scribe & Author Attribution
+            <h3 className="font-headline-md text-headline-md text-on-background border-b-2 border-on-background/20 pb-2">
+              2. Yazar Bilgileri
             </h3>
 
             <div className="space-y-4">
               <div className="space-y-1">
-                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014] flex items-center gap-1.5">
-                  <User size={14} className="text-[#9e1b1b]" /> Author Full Name *
+                <label className="font-label-md text-xs font-bold text-on-background flex items-center gap-1.5">
+                  <User size={14} className="text-primary" /> Yazar Adı *
                 </label>
                 <input
                   type="text"
-                  placeholder="e.g. Umberto Eco"
+                  placeholder="Örn. J.R.R. Tolkien"
                   value={authorName}
                   onChange={(e) => setAuthorName(e.target.value)}
-                  className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                  className="w-full bg-surface-container-low text-on-background border-2 border-on-background p-3 rounded-lg font-body-md outline-none focus:border-secondary shadow-brutal-sm"
                   required
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014]">
-                  Author Biography (Optional)
+                <label className="font-label-md text-xs font-bold text-on-background">
+                  Yazar Biyografisi (Opsiyonel)
                 </label>
                 <textarea
                   rows={3}
-                  placeholder="Historical details, biographical background, or notable achievements..."
+                  placeholder="Yazar hakkında kısa bilgi..."
                   value={authorBio}
                   onChange={(e) => setAuthorBio(e.target.value)}
-                  className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                  className="w-full bg-surface-container-low text-on-background border-2 border-on-background p-3 rounded-lg font-body-md outline-none focus:border-secondary shadow-brutal-sm"
                 />
               </div>
             </div>
@@ -219,25 +216,25 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({
 
           {/* Section 3: Media Cover */}
           <div className="space-y-4">
-            <h3 className="font-display text-xl font-bold text-[#383014] border-b border-[#383014]/20 pb-2 italic">
-              3. Visual Illumination & Cover Art
+            <h3 className="font-headline-md text-headline-md text-on-background border-b-2 border-on-background/20 pb-2">
+              3. Kapak Görseli
             </h3>
 
             <div className="space-y-3">
-              <label className="font-label text-xs font-bold uppercase tracking-wider text-[#383014] flex items-center gap-1.5">
-                <LinkIcon size={14} className="text-[#9e1b1b]" /> Cover Image URL (Optional)
+              <label className="font-label-md text-xs font-bold text-on-background flex items-center gap-1.5">
+                <LinkIcon size={14} className="text-primary" /> Görsel URL
               </label>
               <input
                 type="url"
-                placeholder="https://images.unsplash.com/photo-..."
+                placeholder="https://..."
                 value={coverImageUrl}
                 onChange={(e) => setCoverImageUrl(e.target.value)}
-                className="w-full bg-[#1a1512] text-[#f4ecd8] border border-[#d4af37]/60 p-3 rounded-sm font-body outline-none focus:ring-2 focus:ring-[#9e1b1b]"
+                className="w-full bg-surface-container-low text-on-background border-2 border-on-background p-3 rounded-lg font-body-md outline-none focus:border-secondary shadow-brutal-sm"
               />
 
               {coverImageUrl && (
-                <div className="mt-4 p-3 bg-[#1a1512] rounded-sm border border-[#d4af37]/40 flex items-center gap-4">
-                  <div className="w-20 h-28 overflow-hidden rounded-sm border border-[#d4af37]">
+                <div className="mt-4 p-3 bg-surface-container-low rounded-lg border-2 border-on-background flex items-center gap-4">
+                  <div className="w-16 h-24 overflow-hidden rounded border border-on-background">
                     <img
                       src={coverImageUrl}
                       alt="Cover Preview"
@@ -246,12 +243,9 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({
                     />
                   </div>
                   <div>
-                    <span className="font-label text-xs text-[#d4af37] font-bold uppercase tracking-widest flex items-center gap-1">
-                      <ImageIcon size={14} /> Illuminating Art Preview
+                    <span className="font-label-md text-xs text-secondary font-bold flex items-center gap-1">
+                      <ImageIcon size={14} /> Kapak Önizlemesi Yüklendi
                     </span>
-                    <p className="font-body text-xs text-[#f4ecd8]/70 mt-1">
-                      Visual asset loaded cleanly. Will display on folio card.
-                    </p>
                   </div>
                 </div>
               )}
@@ -259,21 +253,21 @@ export const AddBookForm: React.FC<AddBookFormProps> = ({
           </div>
 
           {/* Form Actions */}
-          <div className="pt-6 border-t border-[#383014]/20 flex items-center justify-end gap-4">
+          <div className="pt-6 border-t-2 border-on-background/20 flex items-center justify-end gap-4">
             <button
               type="button"
               onClick={onCancel}
-              className="px-6 py-3 font-label text-xs font-bold uppercase tracking-widest bg-[#1a1512] text-[#d4af37] border border-[#d4af37]/40 hover:border-[#d4af37] rounded-sm transition-colors"
+              className="px-6 py-3 font-label-md text-xs font-bold bg-surface-container-highest text-on-background border-2 border-on-background rounded-lg shadow-brutal-sm hover:translate-y-0.5 active:translate-y-1 active:shadow-none transition-all"
             >
-              Discard Entry
+              Vazgeç
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="illuminated-btn"
+              className="px-6 py-3 bg-primary text-on-primary border-2 border-on-background rounded-lg font-label-md text-xs font-bold shadow-brutal-sm hover:translate-y-0.5 active:translate-y-1 active:shadow-none transition-all flex items-center gap-2"
             >
               <PlusCircle size={16} />
-              <span>{isSubmitting ? 'Inscribing...' : 'Inscribe Title'}</span>
+              <span>{isSubmitting ? 'Kaydediliyor...' : 'Kitabı Kaydet'}</span>
             </button>
           </div>
         </form>

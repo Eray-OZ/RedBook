@@ -1,4 +1,4 @@
-﻿using api.Core.Entities;
+using api.Core.Entities;
 using api.Core.Enums;
 
 namespace api.Application.DTOs.Book;
@@ -10,4 +10,5 @@ public class GetBookDto
     public int DefaultPageCount { get; set; }
     public DateTime PublishYear { get; set; }
     public required string AuthorName { get; set; }
+    public string? CoverImage { get; set; }
 }

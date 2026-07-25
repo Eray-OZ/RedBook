@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Navbar } from './components/Navbar';
+import { Navbar, type TabType } from './components/Navbar';
 import { BookList } from './components/BookList';
 import { AddBookForm } from './components/AddBookForm';
 import { GoogleBooksSearch } from './components/GoogleBooksSearch';
+import { ReadingLogs } from './components/ReadingLogs';
 import { ApiTester } from './components/ApiTester';
-import { BookService } from './services/api';
-import type { Book, CreateBookDto } from './types/book';
+import { BookService, ReadingLogService } from './services/api';
+import type { Book, CreateBookDto, ReadingLog } from './types/book';
 import { CheckCircle2, Info, AlertTriangle, Plus } from 'lucide-react';
 
 export interface ToastMessage {
@@ -15,8 +16,9 @@ export interface ToastMessage {
 }
 
 export function App() {
-  const [activeTab, setActiveTab] = useState<'library' | 'add' | 'search' | 'tester'>('library');
+  const [activeTab, setActiveTab] = useState<TabType>('logs');
   const [books, setBooks] = useState<Book[]>([]);
+  const [logs, setLogs] = useState<ReadingLog[]>([]);
   const [isBackendOnline, setIsBackendOnline] = useState<boolean>(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
@@ -34,6 +36,15 @@ export function App() {
     setIsBackendOnline(!isMock);
   };
 
+  const loadLogs = async () => {
+    const { logs: fetchedLogs } = await ReadingLogService.getLogs();
+    setLogs(fetchedLogs);
+  };
+
+  const refreshAll = async () => {
+    await Promise.all([loadBooks(), loadLogs()]);
+  };
+
   const checkHealth = async () => {
     const { online, message } = await BookService.checkHealth();
     setIsBackendOnline(online);
@@ -41,88 +52,101 @@ export function App() {
   };
 
   useEffect(() => {
-    loadBooks();
+    refreshAll();
     checkHealth();
   }, []);
 
   const handleCreateBook = async (dto: CreateBookDto) => {
     const { book, isMock } = await BookService.createBook(dto);
-    setBooks((prev) => [book, ...prev]);
-    addToast(`"${book.title}" inscribe into ${isMock ? 'demo storage' : 'database'}!`, 'success');
+    await refreshAll();
+    addToast(`"${book.title}" ${isMock ? 'demo belleğe' : 'veritabanına'} kaydedildi!`, 'success');
     setActiveTab('library');
   };
 
   return (
-    <div className="min-h-screen bg-[#131313] text-[#e4e2e1] flex flex-col relative font-body">
-      {/* Candlelight Flicker Vignette Overlay */}
-      <div className="flicker-overlay"></div>
-
-      {/* Navigation Sidebar & Header */}
+    <div className="bg-background text-on-background font-body-md text-body-md min-h-screen flex flex-col md:flex-row antialiased relative">
+      {/* Navigation SideBar & Header */}
       <Navbar
         activeTab={activeTab}
         setActiveTab={setActiveTab}
         isBackendOnline={isBackendOnline}
         bookCount={books.length}
+        logCount={logs.length}
       />
 
-      {/* Main Content View Container */}
-      <main className="flex-1 md:ml-64 px-4 sm:px-8 lg:px-12 pt-8 pb-20 max-w-7xl">
-        {activeTab === 'library' && (
-          <BookList
-            books={books}
-            onNavigateToAdd={() => setActiveTab('add')}
-            onNavigateToSearch={() => setActiveTab('search')}
-          />
-        )}
+      {/* Main Content Wrapper */}
+      <div className="flex-1 md:ml-64 flex flex-col min-h-screen">
+        <main className="flex-1 p-margin-mobile md:p-margin-desktop w-full max-w-container-max mx-auto space-y-8">
+          {activeTab === 'logs' && (
+            <ReadingLogs
+              logs={logs}
+              onRefreshLogs={refreshAll}
+              addToast={addToast}
+            />
+          )}
 
-        {activeTab === 'add' && (
-          <AddBookForm
-            onSubmit={handleCreateBook}
-            onCancel={() => setActiveTab('library')}
-          />
-        )}
+          {activeTab === 'library' && (
+            <BookList
+              books={books}
+              onNavigateToAdd={() => setActiveTab('add')}
+              onNavigateToSearch={() => setActiveTab('search')}
+            />
+          )}
 
-        {activeTab === 'search' && (
-          <GoogleBooksSearch
-            onImportBook={handleCreateBook}
-            onNavigateToLibrary={() => setActiveTab('library')}
-          />
-        )}
+          {activeTab === 'add' && (
+            <AddBookForm
+              onSubmit={handleCreateBook}
+              onCancel={() => setActiveTab('library')}
+            />
+          )}
 
-        {activeTab === 'tester' && (
-          <ApiTester
-            isOnline={isBackendOnline}
-            onRefreshHealth={checkHealth}
-          />
-        )}
+          {activeTab === 'search' && (
+            <GoogleBooksSearch
+              onImportBook={handleCreateBook}
+              onNavigateToLibrary={() => setActiveTab('library')}
+            />
+          )}
 
-        {/* Archival Footer */}
-        <footer className="mt-20 pt-8 border-t border-[#d4af37]/20 flex flex-col sm:flex-row items-center justify-between gap-4 font-label text-xs text-[#d4af37]/60">
-          <p className="uppercase tracking-[0.3em]">
-            © 2026 RedBook v2.1.0 • Built in Darkness
-          </p>
-          <p className="uppercase tracking-widest text-[10px]">
-            Powered by React, Vite & .NET Core Web API
-          </p>
+          {activeTab === 'tester' && (
+            <ApiTester
+              isOnline={isBackendOnline}
+              onRefreshHealth={checkHealth}
+            />
+          )}
+        </main>
+
+        {/* Footer */}
+        <footer className="w-full border-t-2 border-on-background flex flex-col md:flex-row justify-between items-center px-margin-desktop py-8 gap-gutter max-w-container-max mx-auto bg-surface-container-highest mt-12">
+          <div className="font-headline-md text-headline-md text-primary">
+            The Ledger
+          </div>
+          <div className="font-caption text-caption text-on-surface text-center md:text-left">
+            © 2026 The Ledger. Tüm hakları saklıdır.
+          </div>
+          <div className="flex gap-4">
+            <a className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Kütüphane</a>
+            <a className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Gizlilik</a>
+            <a className="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Lonca</a>
+          </div>
         </footer>
-      </main>
+      </div>
 
-      {/* Floating Wax Seal Action Button (FAB) */}
+      {/* Floating Action Button (FAB) */}
       <button
         onClick={() => setActiveTab('add')}
-        className="wax-seal-btn fixed bottom-8 right-8 z-50 group"
-        title="Inscribe New Folio"
+        className="fixed bottom-8 right-8 z-50 w-14 h-14 bg-primary text-on-primary border-2 border-on-background rounded-full shadow-brutal flex items-center justify-center hover:translate-y-0.5 active:translate-y-1 active:shadow-none transition-all"
+        title="Yeni Kitap Ekle"
       >
-        <Plus className="w-6 h-6 text-[#f4ecd8] group-hover:scale-125 transition-transform" />
+        <Plus className="w-7 h-7" />
       </button>
 
       {/* Toast Notifications */}
       <div className="toast-container">
         {toasts.map((toast) => (
-          <div key={toast.id} className="toast">
-            {toast.type === 'success' && <CheckCircle2 size={18} className="text-[#9e1b1b]" />}
-            {toast.type === 'info' && <Info size={18} className="text-[#d4af37]" />}
-            {toast.type === 'warning' && <AlertTriangle size={18} className="text-amber-600" />}
+          <div key={toast.id} className="toast border-2 border-on-background shadow-brutal-sm">
+            {toast.type === 'success' && <CheckCircle2 size={18} className="text-emerald-600" />}
+            {toast.type === 'info' && <Info size={18} className="text-secondary" />}
+            {toast.type === 'warning' && <AlertTriangle size={18} className="text-primary" />}
             <span>{toast.text}</span>
           </div>
         ))}

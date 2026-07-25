@@ -1,4 +1,4 @@
-﻿using api.Application.DTOs.ReadingLog;
+using api.Application.DTOs.ReadingLog;
 using api.Core.Entities;
 
 namespace api.Application.Mappings;
@@ -19,7 +19,8 @@ public static class LogMapper
             ReadPages = log.ReadPages,
             Rating = log.Rating,
             ReviewNotes = log.ReviewNotes,
-            IsReRead = log.IsReRead
+            IsReRead = log.IsReRead,
+            CoverImage = log.Book.CoverImageUrl
         };
     }
 

@@ -15,4 +15,5 @@ public class GetLogDto
     public float Rating { get; set; }
     public string? ReviewNotes { get; set; }
     public bool IsReRead { get; set; }
+    public string? CoverImage { get; set; }
 }

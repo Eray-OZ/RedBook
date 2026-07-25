@@ -1,27 +1,18 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Literata:ital,wght@0,200..900;1,200..900&family=Source+Serif+4:ital,opsz,wght@0,8..60,200..900;1,8..60,200..900&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap');
 
 :root {
-  --font-display: 'Playfair Display', Georgia, serif;
-  --font-body: 'Literata', Georgia, serif;
-  --font-label: 'Source Serif 4', serif;
+  --font-display: 'Literata', Georgia, serif;
+  --font-body: 'Plus Jakarta Sans', sans-serif;
+  --font-label: 'Plus Jakarta Sans', sans-serif;
 
-  /* Crimson Archive Theme Colors */
-  --bg-surface: #131313;
-  --bg-surface-container: #1f2020;
-  --bg-surface-low: #1b1c1c;
-  --bg-surface-lowest: #0e0e0e;
-
-  --color-primary: #ffb4ac;
-  --color-primary-container: #9e1b1b;
-  --color-on-primary-container: #ffafa7;
-  
-  --color-parchment: #f4ecd8;
-  --color-parchment-ink: #383014;
-  --color-gold: #d4af37;
-  --color-dark-wood: #1a1512;
-
-  --border-gold-subtle: rgba(212, 175, 55, 0.25);
-  --border-gold-strong: #d4af37;
+  --color-primary: #9a4600;
+  --color-primary-container: #ff8a3d;
+  --color-secondary: #006970;
+  --color-secondary-container: #8df2fc;
+  --color-tertiary: #77574d;
+  --color-tertiary-container: #c8a195;
+  --color-background: #fff9eb;
+  --color-on-background: #1e1c10;
 }
 
 * {
@@ -32,175 +23,45 @@
 
 body {
   font-family: var(--font-body);
-  background-color: var(--bg-surface);
-  color: #e4e2e1;
+  background-color: var(--color-background);
+  color: var(--color-on-background);
   min-height: 100vh;
   line-height: 1.6;
   overflow-x: hidden;
 }
 
-/* Typography Utility Classes */
-.font-display { font-family: var(--font-display); }
-.font-body { font-family: var(--font-body); }
-.font-label { font-family: var(--font-label); }
-
-/* Medieval / Scriptorium Atmosphere Effects */
-.flicker-overlay {
-  position: fixed;
-  inset: 0;
-  background: radial-gradient(circle at 50% 50%, transparent 0%, rgba(0,0,0,0.5) 100%);
-  pointer-events: none;
-  z-index: 20;
-  animation: flicker-candle 6s infinite ease-in-out;
+/* Custom Utility for Neo-Brutalism Shadows */
+.shadow-brutal {
+    box-shadow: 6px 6px 0px 0px #1e1c10;
+}
+.shadow-brutal-sm {
+    box-shadow: 4px 4px 0px 0px #1e1c10;
+}
+.shadow-brutal-hover:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0px 0px #1e1c10;
+}
+.shadow-brutal-active:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px 0px #1e1c10;
 }
 
-@keyframes flicker-candle {
-  0%, 100% { opacity: 0.3; }
-  25% { opacity: 0.45; }
-  50% { opacity: 0.35; }
-  75% { opacity: 0.4; }
+/* Hand-drawn SVG animation */
+@keyframes draw {
+    to {
+        stroke-dashoffset: 0;
+    }
 }
-
-.dark-wood-sidebar {
-  background-color: #1a1512;
-  background-image: radial-gradient(circle at 50% 0%, #291e19 0%, #15100e 100%);
-  border-right: 2px solid rgba(212, 175, 55, 0.2);
-  box-shadow: inset -10px 0 20px rgba(0,0,0,0.8), 5px 0 15px rgba(0,0,0,0.5);
-}
-
-.mystical-header {
-  background: linear-gradient(to bottom, #111111 0%, rgba(19, 19, 19, 0.95) 100%);
-  border-bottom: 1px solid rgba(212, 175, 55, 0.25);
-  backdrop-filter: blur(8px);
-}
-
-/* Parchment Card Component */
-.parchment-card {
-  background-color: #f4ecd8;
-  color: #383014;
-  border: 1px solid #d4af37;
-  position: relative;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.6);
-  transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-
-.parchment-card::before {
-  content: '❧';
-  position: absolute;
-  top: 6px;
-  right: 12px;
-  font-size: 22px;
-  opacity: 0.15;
-  color: #383014;
-  pointer-events: none;
-}
-
-.parchment-card:hover {
-  transform: translateY(-5px) scale(1.01);
-  box-shadow: 0 16px 35px rgba(0,0,0,0.8), 0 0 15px rgba(212, 175, 55, 0.3);
-}
-
-/* Ink Bleed Hover Effect */
-.ink-bleed-hover {
-  transition: color 0.2s ease, text-shadow 0.2s ease;
-}
-
-.ink-bleed-hover:hover {
-  color: #d4af37;
-  text-shadow: 0 0 8px rgba(212, 175, 55, 0.5);
-}
-
-/* Buttons */
-.illuminated-btn {
-  background: #9e1b1b;
-  color: #ffffff;
-  border: 1px solid #d4af37;
-  padding: 10px 20px;
-  text-transform: uppercase;
-  letter-spacing: 2px;
-  font-family: var(--font-label);
-  font-weight: 700;
-  font-size: 0.8rem;
-  box-shadow: 0 4px 0 #5e1010;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
-.illuminated-btn:hover {
-  background: #b82121;
-  transform: translateY(-2px);
-  box-shadow: 0 6px 0 #5e1010, 0 0 12px rgba(158, 27, 27, 0.6);
-}
-
-.illuminated-btn:active {
-  transform: translateY(2px);
-  box-shadow: 0 2px 0 #5e1010;
-}
-
-.wax-seal-btn {
-  background: radial-gradient(circle at 50% 50%, #9e1b1b, #6a1212);
-  border-radius: 50%;
-  width: 56px;
-  height: 56px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 4px 4px 15px rgba(0,0,0,0.8), inset 2px 2px 4px rgba(255,255,255,0.25);
-  border: 2px solid #7d1515;
-  cursor: pointer;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.wax-seal-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 0 20px rgba(158, 27, 27, 0.8);
-}
-
-/* Rune Glow */
-.rune-glow:hover {
-  animation: rune-pulse 1.5s infinite alternate;
-}
-
-@keyframes rune-pulse {
-  from { text-shadow: 0 0 2px #d4af37; }
-  to { text-shadow: 0 0 10px #d4af37, 0 0 15px #9e1b1b; }
-}
-
-/* Item Type Badges */
-.badge-crimson {
-  background-color: #9e1b1b;
-  color: #ffffff;
-  font-family: var(--font-label);
-  font-weight: 700;
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 2px;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.4);
-}
-
-.badge-gold {
-  background-color: #52482b;
-  color: #d4af37;
-  border: 1px solid #d4af37;
-  font-family: var(--font-label);
-  font-weight: 700;
-  font-size: 0.65rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  padding: 3px 8px;
-  border-radius: 2px;
+.animate-draw {
+    stroke-dasharray: 1000;
+    stroke-dashoffset: 1000;
+    animation: draw 2s ease-out forwards;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #0e0e0e; }
-::-webkit-scrollbar-thumb { background: #2d241e; border: 1px solid #d4af37; }
+::-webkit-scrollbar-track { background: #faf3e0; }
+::-webkit-scrollbar-thumb { background: #c8a195; border: 1px solid #1e1c10; border-radius: 4px; }
 
 /* Toast Notifications */
 .toast-container {
@@ -215,16 +76,17 @@ body {
 
 .toast {
   padding: 0.8rem 1.2rem;
-  background: #f4ecd8;
-  color: #383014;
-  border: 2px solid #9e1b1b;
+  background: #fff9eb;
+  color: #1e1c10;
+  border: 2px solid #1e1c10;
+  border-radius: 0.5rem;
   font-family: var(--font-body);
   font-size: 0.9rem;
   font-weight: 600;
   display: flex;
   align-items: center;
   gap: 0.6rem;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+  box-shadow: 4px 4px 0px 0px #1e1c10;
   animation: slideIn 0.3s ease forwards;
 }
 
@@ -232,3 +94,4 @@ body {
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+

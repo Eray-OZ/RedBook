@@ -1,11 +1,13 @@
 import React from 'react';
-import { BookOpen, PlusCircle, Search, Terminal, Radio } from 'lucide-react';
+
+export type TabType = 'library' | 'add' | 'search' | 'logs' | 'tester';
 
 interface NavbarProps {
-  activeTab: 'library' | 'add' | 'search' | 'tester';
-  setActiveTab: (tab: 'library' | 'add' | 'search' | 'tester') => void;
+  activeTab: TabType;
+  setActiveTab: (tab: TabType) => void;
   isBackendOnline: boolean;
   bookCount: number;
+  logCount: number;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -13,142 +15,175 @@ export const Navbar: React.FC<NavbarProps> = ({
   setActiveTab,
   isBackendOnline,
   bookCount,
+  logCount,
 }) => {
   return (
     <>
-      {/* Desktop Sidebar (Medieval Dark Wood) */}
-      <aside className="fixed left-0 top-0 h-full w-64 z-40 flex flex-col p-6 dark-wood-sidebar hidden md:flex">
-        {/* Brand Header */}
-        <div className="mb-8 flex flex-col items-center">
-          <div className="relative group cursor-pointer" onClick={() => setActiveTab('library')}>
-            <div className="absolute inset-0 bg-[#d4af37]/20 blur-xl group-hover:bg-[#9e1b1b]/40 transition-all duration-700"></div>
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#9e1b1b] to-[#5e1010] border-2 border-[#d4af37] flex items-center justify-center shadow-lg relative z-10">
-              <BookOpen className="w-8 h-8 text-[#f4ecd8]" />
-            </div>
+      {/* Desktop SideNavBar */}
+      <nav className="hidden md:flex flex-col h-screen fixed left-0 top-0 w-64 border-r-2 border-on-background shadow-[6px_0px_0px_0px_rgba(51,48,36,1)] p-4 gap-4 bg-tertiary-container z-40">
+        <div 
+          className="flex items-center gap-3 mb-6 mt-2 px-2 cursor-pointer"
+          onClick={() => setActiveTab('logs')}
+        >
+          <div className="w-10 h-10 bg-primary-container border-2 border-on-background rounded-full flex items-center justify-center shadow-brutal-sm shrink-0">
+            <span className="material-symbols-outlined text-on-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>
+              ink_pen
+            </span>
           </div>
-          <div className="text-center mt-3">
-            <h1 className="font-display text-2xl font-black text-[#ffb4ac] tracking-tighter uppercase italic drop-shadow-md">
-              RedBook
-            </h1>
-            <p className="text-[10px] uppercase tracking-[0.3em] text-[#d4af37] font-bold mt-0.5 opacity-90 font-label">
-              Premium Library
-            </p>
+          <div>
+            <h1 className="font-headline-md text-headline-md text-on-tertiary-container leading-tight">The Ledger</h1>
+            <p className="font-caption text-caption text-on-tertiary-container opacity-80">Your Literary Journey</p>
           </div>
         </div>
 
-        {/* Navigation Links */}
-        <nav className="flex-1 space-y-3">
+        <div className="flex-1 flex flex-col gap-2">
+          {/* Active Tab: Reading Logs */}
           <button
-            onClick={() => setActiveTab('library')}
-            className={`w-full flex items-center justify-between px-4 py-3 rounded-sm border transition-all duration-300 font-label ${
-              activeTab === 'library'
-                ? 'bg-[#f4ecd8] text-[#383014] border-[#d4af37] shadow-lg font-bold'
-                : 'text-[#e4e2e1]/70 hover:text-[#d4af37] border-transparent hover:border-[#d4af37]/30 ink-bleed-hover'
+            onClick={() => setActiveTab('logs')}
+            className={`flex items-center justify-between gap-3 px-3 py-3 rounded-lg font-label-md text-label-md transition-all text-left ${
+              activeTab === 'logs'
+                ? 'bg-primary text-on-primary border-2 border-on-background shadow-[2px_2px_0px_0px_rgba(51,48,36,1)] active:scale-95 font-bold'
+                : 'text-on-tertiary-container hover:bg-surface-variant/50 hover:bg-primary-container/20 active:scale-95'
             }`}
           >
             <div className="flex items-center gap-3">
-              <BookOpen size={18} className={activeTab === 'library' ? 'text-[#9e1b1b]' : ''} />
-              <span className="text-xs uppercase tracking-widest font-semibold">Library</span>
+              <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: activeTab === 'logs' ? "'FILL' 1" : "'FILL' 0" }}>
+                history_edu
+              </span>
+              Reading Logs
             </div>
-            <span
-              className={`text-[10px] font-black px-2 py-0.5 rounded ${
-                activeTab === 'library' ? 'bg-[#9e1b1b] text-white' : 'bg-[#1b1c1c] text-[#d4af37] border border-[#d4af37]/40'
-              }`}
-            >
+            <span className={`text-xs px-2 py-0.5 rounded-full border border-on-background ${activeTab === 'logs' ? 'bg-surface-bright text-on-background' : 'bg-surface-container text-on-surface-variant'}`}>
+              {logCount}
+            </span>
+          </button>
+
+          {/* My Shelf */}
+          <button
+            onClick={() => setActiveTab('library')}
+            className={`flex items-center justify-between gap-3 px-3 py-3 rounded-lg font-label-md text-label-md transition-all text-left ${
+              activeTab === 'library'
+                ? 'bg-primary text-on-primary border-2 border-on-background shadow-[2px_2px_0px_0px_rgba(51,48,36,1)] active:scale-95 font-bold'
+                : 'text-on-tertiary-container hover:bg-surface-variant/50 hover:bg-primary-container/20 active:scale-95'
+            }`}
+          >
+            <div className="flex items-center gap-3">
+              <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: activeTab === 'library' ? "'FILL' 1" : "'FILL' 0" }}>
+                book_2
+              </span>
+              My Shelf
+            </div>
+            <span className={`text-xs px-2 py-0.5 rounded-full border border-on-background ${activeTab === 'library' ? 'bg-surface-bright text-on-background' : 'bg-surface-container text-on-surface-variant'}`}>
               {bookCount}
             </span>
           </button>
 
-          <button
-            onClick={() => setActiveTab('add')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-sm border transition-all duration-300 font-label ${
-              activeTab === 'add'
-                ? 'bg-[#f4ecd8] text-[#383014] border-[#d4af37] shadow-lg font-bold'
-                : 'text-[#e4e2e1]/70 hover:text-[#d4af37] border-transparent hover:border-[#d4af37]/30 ink-bleed-hover'
-            }`}
-          >
-            <PlusCircle size={18} className={activeTab === 'add' ? 'text-[#9e1b1b]' : ''} />
-            <span className="text-xs uppercase tracking-widest font-semibold">Add Book</span>
-          </button>
-
+          {/* Grand Archives / Search */}
           <button
             onClick={() => setActiveTab('search')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-sm border transition-all duration-300 font-label ${
+            className={`flex items-center gap-3 px-3 py-3 rounded-lg font-label-md text-label-md transition-all text-left ${
               activeTab === 'search'
-                ? 'bg-[#f4ecd8] text-[#383014] border-[#d4af37] shadow-lg font-bold'
-                : 'text-[#e4e2e1]/70 hover:text-[#d4af37] border-transparent hover:border-[#d4af37]/30 ink-bleed-hover'
+                ? 'bg-primary text-on-primary border-2 border-on-background shadow-[2px_2px_0px_0px_rgba(51,48,36,1)] active:scale-95 font-bold'
+                : 'text-on-tertiary-container hover:bg-surface-variant/50 hover:bg-primary-container/20 active:scale-95'
             }`}
           >
-            <Search size={18} className={activeTab === 'search' ? 'text-[#9e1b1b]' : ''} />
-            <span className="text-xs uppercase tracking-widest font-semibold">Google Books</span>
+            <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: activeTab === 'search' ? "'FILL' 1" : "'FILL' 0" }}>
+              museum
+            </span>
+            Grand Archives
           </button>
 
+          {/* Add Title */}
+          <button
+            onClick={() => setActiveTab('add')}
+            className={`flex items-center gap-3 px-3 py-3 rounded-lg font-label-md text-label-md transition-all text-left ${
+              activeTab === 'add'
+                ? 'bg-primary text-on-primary border-2 border-on-background shadow-[2px_2px_0px_0px_rgba(51,48,36,1)] active:scale-95 font-bold'
+                : 'text-on-tertiary-container hover:bg-surface-variant/50 hover:bg-primary-container/20 active:scale-95'
+            }`}
+          >
+            <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: activeTab === 'add' ? "'FILL' 1" : "'FILL' 0" }}>
+              add_circle
+            </span>
+            Yeni Kitap Ekle
+          </button>
+
+          {/* API Tester */}
           <button
             onClick={() => setActiveTab('tester')}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-sm border transition-all duration-300 font-label ${
+            className={`flex items-center gap-3 px-3 py-3 rounded-lg font-label-md text-label-md transition-all text-left ${
               activeTab === 'tester'
-                ? 'bg-[#f4ecd8] text-[#383014] border-[#d4af37] shadow-lg font-bold'
-                : 'text-[#e4e2e1]/70 hover:text-[#d4af37] border-transparent hover:border-[#d4af37]/30 ink-bleed-hover'
+                ? 'bg-primary text-on-primary border-2 border-on-background shadow-[2px_2px_0px_0px_rgba(51,48,36,1)] active:scale-95 font-bold'
+                : 'text-on-tertiary-container hover:bg-surface-variant/50 hover:bg-primary-container/20 active:scale-95'
             }`}
           >
-            <Terminal size={18} className={activeTab === 'tester' ? 'text-[#9e1b1b]' : ''} />
-            <span className="text-xs uppercase tracking-widest font-semibold">API Tester</span>
-          </button>
-        </nav>
-
-        {/* Sidebar Footer Action */}
-        <div className="mt-auto pt-6 border-t border-[#d4af37]/20 space-y-4">
-          <button onClick={() => setActiveTab('add')} className="w-full illuminated-btn">
-            <PlusCircle size={16} />
-            <span>Add Title</span>
-          </button>
-
-          <div className="flex items-center justify-between px-2 text-[11px] font-label text-[#e4e2e1]/60">
-            <span className="flex items-center gap-1.5">
-              <Radio size={12} className={isBackendOnline ? 'text-emerald-400 animate-pulse' : 'text-amber-400'} />
-              {isBackendOnline ? 'API Connected' : 'Demo Mode'}
+            <span className="material-symbols-outlined text-xl" style={{ fontVariationSettings: activeTab === 'tester' ? "'FILL' 1" : "'FILL' 0" }}>
+              terminal
             </span>
-            <span className="text-[#d4af37] font-bold">v2.1</span>
-          </div>
-        </div>
-      </aside>
-
-      {/* Mobile Top Navbar */}
-      <header className="md:hidden sticky top-0 left-0 right-0 z-40 mystical-header px-4 py-3 flex items-center justify-between border-b border-[#d4af37]/20 bg-[#131313]/90 backdrop-blur-md">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => setActiveTab('library')}>
-          <div className="w-8 h-8 rounded-full bg-[#9e1b1b] border border-[#d4af37] flex items-center justify-center text-[#f4ecd8]">
-            <BookOpen size={16} />
-          </div>
-          <span className="font-display font-black text-lg text-[#ffb4ac] italic">RedBook</span>
+            API Tester
+          </button>
         </div>
 
-        <div className="flex items-center gap-2">
+        <button
+          onClick={() => setActiveTab('add')}
+          className="w-full py-3 mb-2 bg-secondary text-on-secondary border-2 border-on-background rounded-lg font-label-md text-label-md shadow-brutal-sm hover:translate-y-0.5 hover:shadow-[2px_2px_0px_0px_#1e1c10] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all flex items-center justify-center gap-2"
+        >
+          <span className="material-symbols-outlined text-xl">auto_stories</span>
+          Yeni Kitap Ekle
+        </button>
+
+        <div className="mt-auto border-t-2 border-on-background pt-3 flex items-center justify-between px-1 text-xs text-on-tertiary-container font-caption">
+          <span className="flex items-center gap-1.5 font-medium">
+            <span className={`w-2.5 h-2.5 rounded-full border border-on-background ${isBackendOnline ? 'bg-emerald-500 animate-pulse' : 'bg-amber-500'}`}></span>
+            {isBackendOnline ? 'API Online' : 'Demo Mode'}
+          </span>
+          <span className="font-bold opacity-75">v2.0</span>
+        </div>
+      </nav>
+
+      {/* Mobile TopAppBar */}
+      <header className="md:hidden w-full top-0 z-50 border-b-2 border-on-background shadow-[4px_4px_0px_0px_rgba(154,70,0,1)] flex justify-between items-center px-4 py-3 bg-surface-bright sticky">
+        <div 
+          className="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tighter cursor-pointer flex items-center gap-2"
+          onClick={() => setActiveTab('logs')}
+        >
+          <span className="material-symbols-outlined text-2xl">ink_pen</span>
+          The Ledger
+        </div>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setActiveTab('logs')}
+            className={`p-2 rounded border border-on-background ${activeTab === 'logs' ? 'bg-primary text-on-primary' : 'text-primary bg-surface'}`}
+            title="Reading Logs"
+          >
+            <span className="material-symbols-outlined text-xl block">history_edu</span>
+          </button>
           <button
             onClick={() => setActiveTab('library')}
-            className={`p-2 rounded ${activeTab === 'library' ? 'bg-[#f4ecd8] text-[#383014]' : 'text-[#d4af37]'}`}
+            className={`p-2 rounded border border-on-background ${activeTab === 'library' ? 'bg-primary text-on-primary' : 'text-primary bg-surface'}`}
+            title="My Shelf"
           >
-            <BookOpen size={18} />
+            <span className="material-symbols-outlined text-xl block">book_2</span>
           </button>
-
-          <button
-            onClick={() => setActiveTab('add')}
-            className={`p-2 rounded ${activeTab === 'add' ? 'bg-[#f4ecd8] text-[#383014]' : 'text-[#d4af37]'}`}
-          >
-            <PlusCircle size={18} />
-          </button>
-
           <button
             onClick={() => setActiveTab('search')}
-            className={`p-2 rounded ${activeTab === 'search' ? 'bg-[#f4ecd8] text-[#383014]' : 'text-[#d4af37]'}`}
+            className={`p-2 rounded border border-on-background ${activeTab === 'search' ? 'bg-primary text-on-primary' : 'text-primary bg-surface'}`}
+            title="Grand Archives"
           >
-            <Search size={18} />
+            <span className="material-symbols-outlined text-xl block">museum</span>
           </button>
-
+          <button
+            onClick={() => setActiveTab('add')}
+            className={`p-2 rounded border border-on-background ${activeTab === 'add' ? 'bg-primary text-on-primary' : 'text-primary bg-surface'}`}
+            title="Add Book"
+          >
+            <span className="material-symbols-outlined text-xl block">add_circle</span>
+          </button>
           <button
             onClick={() => setActiveTab('tester')}
-            className={`p-2 rounded ${activeTab === 'tester' ? 'bg-[#f4ecd8] text-[#383014]' : 'text-[#d4af37]'}`}
+            className={`p-2 rounded border border-on-background ${activeTab === 'tester' ? 'bg-primary text-on-primary' : 'text-primary bg-surface'}`}
+            title="API Tester"
           >
-            <Terminal size={18} />
+            <span className="material-symbols-outlined text-xl block">terminal</span>
           </button>
         </div>
       </header>

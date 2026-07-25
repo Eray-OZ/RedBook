@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+
+<html lang="tr"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Okuma İstatistikleri - The Ledger</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Literata:ital,opsz,wght@0,7..72,200..900;1,7..72,200..900&amp;family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-dim": "#e0dac7",
+                        "secondary-fixed-dim": "#70d6df",
+                        "on-secondary-fixed-variant": "#004f54",
+                        "error-container": "#ffdad6",
+                        "on-primary-container": "#682d00",
+                        "on-background": "#1e1c10",
+                        "tertiary": "#77574d",
+                        "secondary-fixed": "#8df2fc",
+                        "on-secondary": "#ffffff",
+                        "surface-bright": "#fff9eb",
+                        "inverse-on-surface": "#f7f0de",
+                        "on-tertiary-fixed": "#2c160e",
+                        "surface-container": "#f4eedb",
+                        "surface-container-highest": "#e9e2d0",
+                        "primary-fixed": "#ffdbc9",
+                        "on-surface": "#1e1c10",
+                        "secondary": "#006970",
+                        "inverse-surface": "#333024",
+                        "outline-variant": "#ddc1b3",
+                        "tertiary-fixed-dim": "#e7bdb1",
+                        "primary": "#9a4600",
+                        "on-secondary-container": "#006f77",
+                        "background": "#fff9eb",
+                        "on-tertiary-fixed-variant": "#5d4037",
+                        "on-tertiary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "error": "#ba1a1a",
+                        "on-tertiary-container": "#53382f",
+                        "on-secondary-fixed": "#002022",
+                        "inverse-primary": "#ffb68d",
+                        "on-surface-variant": "#564338",
+                        "on-error-container": "#93000a",
+                        "surface-container-low": "#faf3e0",
+                        "surface": "#fff9eb",
+                        "tertiary-fixed": "#ffdbd0",
+                        "surface-container-lowest": "#ffffff",
+                        "on-primary": "#ffffff",
+                        "on-primary-fixed": "#321200",
+                        "on-primary-fixed-variant": "#763300",
+                        "tertiary-container": "#c8a195",
+                        "surface-container-high": "#efe8d5",
+                        "primary-container": "#ff8a3d",
+                        "primary-fixed-dim": "#ffb68d",
+                        "secondary-container": "#8df2fc",
+                        "surface-variant": "#e9e2d0",
+                        "surface-tint": "#9a4600",
+                        "outline": "#8a7266"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "offset-lg": "6px",
+                        "unit": "8px",
+                        "container-max": "1200px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "40px",
+                        "offset-md": "4px",
+                        "offset-sm": "2px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "body-md": ["Plus Jakarta Sans"],
+                        "caption": ["Plus Jakarta Sans"],
+                        "display-lg": ["Literata"],
+                        "headline-lg-mobile": ["Literata"],
+                        "body-lg": ["Plus Jakarta Sans"],
+                        "label-md": ["Plus Jakarta Sans"],
+                        "headline-md": ["Literata"],
+                        "headline-lg": ["Literata"]
+                    },
+                    "fontSize": {
+                        "body-md": ["16px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "caption": ["12px", {"lineHeight": "1.4", "fontWeight": "500"}],
+                        "display-lg": ["48px", {"lineHeight": "1.1", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-lg-mobile": ["28px", {"lineHeight": "1.2", "fontWeight": "700"}],
+                        "body-lg": ["18px", {"lineHeight": "1.6", "fontWeight": "400"}],
+                        "label-md": ["14px", {"lineHeight": "1.2", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "1.3", "fontWeight": "600"}],
+                        "headline-lg": ["32px", {"lineHeight": "1.2", "fontWeight": "700"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        /* Custom Utility for Neo-Brutalism Shadows */
+        .shadow-brutal {
+            box-shadow: 6px 6px 0px 0px #1e1c10;
+        }
+        .shadow-brutal-sm {
+            box-shadow: 4px 4px 0px 0px #1e1c10;
+        }
+        .shadow-brutal-hover:hover {
+            transform: translate(2px, 2px);
+            box-shadow: 4px 4px 0px 0px #1e1c10;
+        }
+        .shadow-brutal-active:active {
+            transform: translate(6px, 6px);
+            box-shadow: 0px 0px 0px 0px #1e1c10;
+        }
+        /* Hand-drawn SVG animation */
+        @keyframes draw {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+        .animate-draw {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: draw 2s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-md text-body-md min-h-screen flex flex-col md:flex-row antialiased">
+<!-- Mobile TopAppBar (Visible only on mobile) -->
+<header class="md:hidden w-full top-0 z-50 border-b-2 border-on-background shadow-[4px_4px_0px_0px_rgba(154,70,0,1)] flex justify-between items-center px-margin-mobile py-4 bg-surface-bright sticky">
+<div class="font-display-lg text-headline-lg-mobile text-primary tracking-tighter">
+            The Ledger
+        </div>
+<div class="flex gap-4">
+<button class="text-primary hover:-translate-y-0.5 transition-transform duration-100 active:translate-x-1 active:translate-y-1 active:shadow-none">
+<span class="material-symbols-outlined text-2xl">menu_book</span>
+</button>
+<button class="text-primary hover:-translate-y-0.5 transition-transform duration-100 active:translate-x-1 active:translate-y-1 active:shadow-none">
+<span class="material-symbols-outlined text-2xl">auto_stories</span>
+</button>
+<button class="text-primary hover:-translate-y-0.5 transition-transform duration-100 active:translate-x-1 active:translate-y-1 active:shadow-none">
+<span class="material-symbols-outlined text-2xl">bookmark</span>
+</button>
+</div>
+</header>
+<!-- Desktop SideNavBar -->
+<nav class="hidden md:flex flex-col h-screen fixed left-0 top-0 w-64 border-r-2 border-on-background shadow-[6px_0px_0px_0px_rgba(51,48,36,1)] p-4 gap-4 bg-tertiary-container z-40">
+<div class="flex items-center gap-3 mb-8 mt-4 px-2">
+<div class="w-10 h-10 bg-primary-container border-2 border-on-background rounded-full flex items-center justify-center shadow-brutal-sm">
+<span class="material-symbols-outlined text-on-primary-container" style="font-variation-settings: 'FILL' 1;">ink_pen</span>
+</div>
+<div>
+<h1 class="font-headline-md text-headline-md text-on-tertiary-container leading-tight">The Ledger</h1>
+<p class="font-caption text-caption text-on-tertiary-container opacity-80">Your Literary Journey</p>
+</div>
+</div>
+<div class="flex-1 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-3 text-on-tertiary-container font-label-md text-label-md hover:bg-surface-variant/50 rounded-lg hover:bg-primary-container/20 transition-colors active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl">book_2</span>
+                My Shelf
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-on-tertiary-container font-label-md text-label-md hover:bg-surface-variant/50 rounded-lg hover:bg-primary-container/20 transition-colors active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl">museum</span>
+                Grand Archives
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-on-tertiary-container font-label-md text-label-md hover:bg-surface-variant/50 rounded-lg hover:bg-primary-container/20 transition-colors active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl">stars</span>
+                Librarian's Pick
+            </a>
+<!-- Active Tab: Reading Logs -->
+<a class="flex items-center gap-3 px-3 py-3 bg-primary text-on-primary border-2 border-on-background rounded-lg shadow-[2px_2px_0px_0px_rgba(51,48,36,1)] font-label-md text-label-md active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined text-xl" style="font-variation-settings: 'FILL' 1;">history_edu</span>
+                Reading Logs
+            </a>
+<a class="flex items-center gap-3 px-3 py-3 text-on-tertiary-container font-label-md text-label-md hover:bg-surface-variant/50 rounded-lg hover:bg-primary-container/20 transition-colors active:scale-95" href="#">
+<span class="material-symbols-outlined text-xl">local_library</span>
+                Borrowed
+            </a>
+</div>
+<button class="w-full py-3 mb-6 bg-secondary text-on-secondary border-2 border-on-background rounded-lg font-label-md text-label-md shadow-brutal-sm hover:translate-y-0.5 hover:shadow-[2px_2px_0px_0px_#1e1c10] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all">
+            Donate a Book
+        </button>
+<div class="mt-auto border-t-2 border-on-background pt-4 flex flex-col gap-2">
+<a class="flex items-center gap-3 px-3 py-2 text-on-tertiary-container font-label-md text-label-md hover:bg-surface-variant/50 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+                Settings
+            </a>
+<a class="flex items-center gap-3 px-3 py-2 text-on-tertiary-container font-label-md text-label-md hover:bg-surface-variant/50 rounded-lg transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">help_outline</span>
+                Support
+            </a>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="flex-1 md:ml-64 flex flex-col min-h-screen">
+<!-- Main Canvas -->
+<main class="flex-1 p-margin-mobile md:p-margin-desktop w-full max-w-container-max mx-auto space-y-8">
+<!-- Dashboard Header -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-end mb-10 gap-4">
+<div>
+<h2 class="font-headline-lg-mobile md:font-headline-lg text-headline-lg-mobile md:text-headline-lg text-on-background mb-2">Okuma İstatistiklerim</h2>
+<p class="font-body-lg text-body-lg text-on-surface-variant">2023 yılındaki edebi serüveninin renkli özeti.</p>
+</div>
+<div class="flex gap-2">
+<span class="inline-flex items-center px-4 py-2 bg-secondary-container border-2 border-on-background rounded-full font-label-md text-label-md shadow-[2px_2px_0px_0px_#1e1c10] transform -rotate-2">
+                        🌟 Süper Okuyucu
+                    </span>
+</div>
+</div>
+<!-- Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
+<!-- Year in Review Stats (Spans 12 cols on mobile, 8 on desktop) -->
+<section class="col-span-1 md:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
+<!-- Stat Card 1 -->
+<div class="bg-primary-container border-2 border-on-background rounded-lg p-6 shadow-brutal flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1 transition-transform">
+<div class="absolute -right-4 -top-4 opacity-20 transform rotate-12 group-hover:rotate-45 transition-transform duration-500">
+<span class="material-symbols-outlined text-8xl">menu_book</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-primary-container mb-1 z-10">Okunan Kitap</h3>
+<div class="font-display-lg text-[64px] leading-none text-on-primary-container mt-4 z-10">42</div>
+<p class="font-label-md text-label-md text-on-primary-container mt-2 z-10">+12 geçen yıla göre</p>
+</div>
+<!-- Stat Card 2 -->
+<div class="bg-secondary-container border-2 border-on-background rounded-lg p-6 shadow-brutal flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1 transition-transform">
+<div class="absolute -right-2 -bottom-4 opacity-20 transform -rotate-12 group-hover:-rotate-45 transition-transform duration-500">
+<span class="material-symbols-outlined text-8xl">auto_stories</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-secondary-container mb-1 z-10">Okunan Sayfa</h3>
+<div class="font-display-lg text-[48px] leading-tight text-on-secondary-container mt-4 z-10">14,205</div>
+<p class="font-label-md text-label-md text-on-secondary-container mt-2 z-10">Harika bir maraton!</p>
+</div>
+<!-- Stat Card 3 -->
+<div class="bg-tertiary-container border-2 border-on-background rounded-lg p-6 shadow-brutal flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1 transition-transform">
+<div class="absolute right-0 top-1/2 -translate-y-1/2 opacity-20 transform rotate-90 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-8xl">local_fire_department</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-tertiary-container mb-1 z-10">En Uzun Seri</h3>
+<div class="font-display-lg text-[56px] leading-none text-on-tertiary-container mt-4 z-10">18</div>
+<p class="font-label-md text-label-md text-on-tertiary-container mt-2 z-10">Gün kesintisiz okuma</p>
+</div>
+</section>
+<!-- Format Breakdown Donut (Spans 12 cols on mobile, 4 on desktop) -->
+<section class="col-span-1 md:col-span-4 bg-surface border-2 border-on-background rounded-lg p-6 shadow-brutal flex flex-col">
+<div class="flex justify-between items-center border-b-2 border-on-background pb-3 mb-4">
+<h3 class="font-headline-md text-headline-md text-on-background">Format Dağılımı</h3>
+<span class="material-symbols-outlined text-primary">pie_chart</span>
+</div>
+<div class="flex-1 flex flex-col items-center justify-center relative">
+<!-- Cartoonish Donut Chart SVG -->
+<svg class="w-40 h-40 transform -rotate-90 filter drop-shadow-[2px_2px_0px_#1e1c10]" viewbox="0 0 100 100">
+<!-- Base/Background -->
+<circle cx="50" cy="50" fill="none" r="40" stroke="theme(colors.surface-variant)" stroke-width="16"></circle>
+<!-- Slice 1: Physical (60%) -->
+<circle class="animate-draw" cx="50" cy="50" fill="none" r="40" stroke="theme(colors.primary)" stroke-dasharray="251.2" stroke-dashoffset="100.48" stroke-linecap="round" stroke-width="16"></circle>
+<!-- Slice 2: E-Book (25%) - Rotated to start after Slice 1 -->
+<circle class="animate-draw" cx="50" cy="50" fill="none" r="40" stroke="theme(colors.secondary)" stroke-dasharray="251.2" stroke-dashoffset="188.4" stroke-linecap="round" stroke-width="16" style="animation-delay: 0.5s;" transform="rotate(216 50 50)"></circle>
+<!-- Slice 3: Audio (15%) - Rotated to start after Slice 2 -->
+<circle class="animate-draw" cx="50" cy="50" fill="none" r="40" stroke="theme(colors.tertiary)" stroke-dasharray="251.2" stroke-dashoffset="213.52" stroke-linecap="round" stroke-width="16" style="animation-delay: 1s;" transform="rotate(306 50 50)"></circle>
+<!-- Inner decorative circle -->
+<circle cx="50" cy="50" fill="theme(colors.surface)" r="28" stroke="theme(colors.on-background)" stroke-width="2"></circle>
+<text fill="theme(colors.on-background)" font-family="Literata" font-size="16" font-weight="bold" text-anchor="middle" transform="rotate(90 50 50)" x="50" y="55">%100</text>
+</svg>
+<!-- Legend -->
+<div class="mt-6 w-full space-y-2">
+<div class="flex items-center justify-between font-label-md text-label-md">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-primary border border-on-background"></div>
+<span>Basılı Kitap</span>
+</div>
+<span>%60</span>
+</div>
+<div class="flex items-center justify-between font-label-md text-label-md">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-secondary border border-on-background"></div>
+<span>E-Kitap</span>
+</div>
+<span>%25</span>
+</div>
+<div class="flex items-center justify-between font-label-md text-label-md">
+<div class="flex items-center gap-2">
+<div class="w-3 h-3 rounded-full bg-tertiary border border-on-background"></div>
+<span>Sesli Kitap</span>
+</div>
+<span>%15</span>
+</div>
+</div>
+</div>
+</section>
+<!-- Reading Activity Graph (Spans 12 cols) -->
+<section class="col-span-1 md:col-span-12 bg-surface-container-low border-2 border-on-background rounded-lg p-6 shadow-brutal">
+<div class="flex justify-between items-center border-b-2 border-on-background pb-3 mb-6">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-background">Okuma Aktivitesi</h3>
+<p class="font-caption text-caption text-on-surface-variant">Sayfa/Hafta Dağılımı</p>
+</div>
+<div class="bg-surface border-2 border-on-background rounded-full p-2 shadow-[2px_2px_0px_0px_#1e1c10]">
+<span class="material-symbols-outlined text-primary block">trending_up</span>
+</div>
+</div>
+<!-- Cartoonish Wavy Graph -->
+<div class="w-full h-48 relative overflow-hidden rounded-lg border-2 border-on-background bg-surface-bright">
+<!-- Graph Pattern Background -->
+<div class="absolute inset-0 opacity-10" style="background-image: radial-gradient(#1e1c10 1px, transparent 1px); background-size: 20px 20px;"></div>
+<svg class="w-full h-full preserve-3d" preserveaspectratio="none" viewbox="0 0 800 200">
+<!-- Filled Area under the curve -->
+<path d="M 0 200 L 0 150 Q 100 120 200 160 T 400 90 T 600 140 T 800 50 L 800 200 Z" fill="theme(colors.secondary-container)" opacity="0.5"></path>
+<!-- The wavy line -->
+<path class="filter drop-shadow-[2px_4px_0px_#1e1c10]" d="M 0 150 Q 100 120 200 160 T 400 90 T 600 140 T 800 50" fill="none" stroke="theme(colors.secondary)" stroke-linecap="round" stroke-linejoin="round" stroke-width="6"></path>
+<!-- Hand-drawn style data points -->
+<circle cx="100" cy="135" fill="theme(colors.surface-bright)" r="8" stroke="theme(colors.on-background)" stroke-width="3"></circle>
+<circle cx="200" cy="160" fill="theme(colors.surface-bright)" r="8" stroke="theme(colors.on-background)" stroke-width="3"></circle>
+<circle cx="300" cy="125" fill="theme(colors.surface-bright)" r="8" stroke="theme(colors.on-background)" stroke-width="3"></circle>
+<circle cx="400" cy="90" fill="theme(colors.surface-bright)" r="8" stroke="theme(colors.on-background)" stroke-width="3"></circle>
+<circle cx="500" cy="115" fill="theme(colors.surface-bright)" r="8" stroke="theme(colors.on-background)" stroke-width="3"></circle>
+<circle cx="600" cy="140" fill="theme(colors.surface-bright)" r="8" stroke="theme(colors.on-background)" stroke-width="3"></circle>
+<circle cx="700" cy="95" fill="theme(colors.surface-bright)" r="8" stroke="theme(colors.on-background)" stroke-width="3"></circle>
+<circle cx="800" cy="50" fill="theme(colors.surface-bright)" r="8" stroke="theme(colors.on-background)" stroke-width="3"></circle>
+</svg>
+<!-- Month Labels -->
+<div class="absolute bottom-2 left-0 right-0 flex justify-between px-4 font-caption text-caption text-on-background bg-surface-bright/80 mx-2 rounded-full border border-on-background py-1">
+<span>Oca</span>
+<span>Mar</span>
+<span>May</span>
+<span>Tem</span>
+<span>Eyl</span>
+<span>Kas</span>
+</div>
+</div>
+</section>
+<!-- Next Up Queue (Spans 12 cols) -->
+<section class="col-span-1 md:col-span-12">
+<div class="flex justify-between items-end border-b-2 border-on-background pb-2 mb-6">
+<h3 class="font-headline-md text-headline-md text-on-background flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">collections_bookmark</span>
+                            Sıradakiler
+                        </h3>
+<a class="font-label-md text-label-md text-primary underline decoration-2 underline-offset-4 hover:text-on-background transition-colors" href="#">Tümünü Gör</a>
+</div>
+<div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+<!-- Book Card 1 -->
+<div class="bg-surface border-2 border-on-background rounded-lg p-3 shadow-brutal-sm shadow-brutal-hover flex flex-col group cursor-pointer transition-all">
+<div class="w-full aspect-[2/3] border-2 border-on-background rounded bg-surface-dim relative overflow-hidden mb-3">
+<img alt="Book cover" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A brightly lit, whimsical still life photograph of a colorful, vintage-style hardcover book lying on a textured oak desk. The book cover features abstract geometric shapes in bold teal and orange colors, characteristic of mid-century illustration. The lighting is warm and sun-drenched, casting a distinct, sharp shadow to the bottom right, reflecting an illustrative neo-brutalism aesthetic. The mood is cozy, intellectual, and playfully engaging." src="https://lh3.googleusercontent.com/aida-public/AB6AXuD6IFSXt6Pv48q3yh_qXpSjUZdOSsVNBvauE9m_nkRhaEpkLSD85_KxTihzNdhp9HGvX8MrjwNL-m8aQl8DAN44nXK1i2oWRcmPpHIzOjbECowuJWW9SHmeYK3T5ekOeK-1DWRjD_-XY0rp8WfvzWTitjnUpcXb_eoZiB0nfMkLY7SVQ7-gwzQXh1A1IbLdoP5FkRjUilgDnnhGWQXA4zBmf2-lzLcFFT7-CA-553SUjAXNnvG2X_0KiihSD8mmo8vRP_0HH1LIWQGl"/>
+<div class="absolute top-2 right-2 bg-secondary text-on-secondary px-2 py-1 rounded-full border border-on-background font-caption text-[10px] transform rotate-3 shadow-[1px_1px_0px_0px_#1e1c10]">
+                                    Kurgu
+                                </div>
+</div>
+<h4 class="font-label-md text-label-md text-on-background line-clamp-1">Gece Yarısı Kütüphanesi</h4>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-1 mt-1">Matt Haig</p>
+</div>
+<!-- Book Card 2 -->
+<div class="bg-surface border-2 border-on-background rounded-lg p-3 shadow-brutal-sm shadow-brutal-hover flex flex-col group cursor-pointer transition-all">
+<div class="w-full aspect-[2/3] border-2 border-on-background rounded bg-surface-dim relative overflow-hidden mb-3">
+<img alt="Book cover" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A close-up, high-contrast shot of a thick, cloth-bound book resting on a stark white studio background. The book is bound in a deep, vibrant library orange with a stylized, hand-drawn ink illustration of a winding road on the cover. Strong, directional lighting from the top left creates a hard, crisp shadow to the bottom right, emphasizing a playful, graphic neo-brutalist style. The aesthetic is clean, modern, and boldly illustrative." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBOs-59McwLRiUxESrLCtbK7YrfXIWGlHCttYF1paQ0JLSjexa1uB7UTDWfyEoD27azYxIwzuTLlURbpKBJtuBW6MkBWGqFWJ4MSrgGj6-8Dmo4xkUVNFxoFoj7pGr29acOECXvtcc4EOmtnK9_k_74dL-GGVuZHRJ7X8Fycyc7p5YB_P4RUR9Dosyvk9LORzUl2ydVZYiPQEIBZB5qX-nXREcEhF_-CH3cizL19Gnj0jT-SWzln3-KQgV1RLfuEl1XMLVb3LzVTGXF"/>
+<div class="absolute top-2 right-2 bg-primary text-on-primary px-2 py-1 rounded-full border border-on-background font-caption text-[10px] transform -rotate-3 shadow-[1px_1px_0px_0px_#1e1c10]">
+                                    Bilim Kurgu
+                                </div>
+</div>
+<h4 class="font-label-md text-label-md text-on-background line-clamp-1">Dune Mesihi</h4>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-1 mt-1">Frank Herbert</p>
+</div>
+<!-- Book Card 3 -->
+<div class="bg-surface border-2 border-on-background rounded-lg p-3 shadow-brutal-sm shadow-brutal-hover flex flex-col group cursor-pointer transition-all">
+<div class="w-full aspect-[2/3] border-2 border-on-background rounded bg-surface-dim relative overflow-hidden mb-3">
+<img alt="Book cover" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="A stylized, flat-lay photograph of a weathered journal or book with a bright, sunny yellow cover placed on a pastel pink background. The cover features minimalist, doodle-like line art of a small house. The lighting is artificial and highly stylized, engineered to cast an immediate, sharp, and opaque dark shadow that perfectly mimics an illustrative, sticker-like offset. The scene feels cozy, whimsical, and distinctly modern." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAv98iLjjJ97Bipd2udjhOujDMAPSsTVFX0A_nJZZd7uE5F4LPgKttkr0q9cGchzZHwlSO2rMWkhAxW1yNCZqkpxiv8cu_TmIDX1KU1BFWxQsgJEtsutSvb31fHQBKVgKH2UESI_EnDu6eYJNISczzHmqt4ijEcCleZMWjOsYLgrmGqj_TziEz89CfIaPMxTX1a1ccJpilAqK_TKymuVnD2jO8oLhQPHOQ_xbPwOX98JD82nedgck94ShiUVEtUwTF7TjJg8pNP7xNj"/>
+<div class="absolute top-2 right-2 bg-tertiary text-on-tertiary px-2 py-1 rounded-full border border-on-background font-caption text-[10px] transform rotate-6 shadow-[1px_1px_0px_0px_#1e1c10]">
+                                    Tarih
+                                </div>
+</div>
+<h4 class="font-label-md text-label-md text-on-background line-clamp-1">Sapiens</h4>
+<p class="font-caption text-caption text-on-surface-variant line-clamp-1 mt-1">Yuval Noah Harari</p>
+</div>
+<!-- Book Card 4 (Hidden on very small mobile, visible on tablet+) -->
+<div class="hidden sm:flex bg-surface border-2 border-on-background rounded-lg p-3 shadow-brutal-sm shadow-brutal-hover flex-col group cursor-pointer transition-all">
+<div class="w-full aspect-[2/3] border-2 border-on-background rounded bg-surface-dim relative overflow-hidden mb-3 flex items-center justify-center bg-surface-variant border-dashed">
+<span class="material-symbols-outlined text-4xl text-on-surface-variant opacity-50">add_circle</span>
+</div>
+<h4 class="font-label-md text-label-md text-on-background text-center mt-2">Yeni Ekle</h4>
+</div>
+</div>
+</section>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full border-t-2 border-on-background flex flex-col md:flex-row justify-between items-center px-margin-desktop py-8 gap-gutter max-w-container-max mx-auto bg-surface-container-highest mt-12">
+<div class="font-headline-md text-headline-md text-primary">
+                The Ledger
+            </div>
+<div class="font-caption text-caption text-on-surface dark:text-on-surface-variant text-center md:text-left">
+                © 1923 The Ledger. All rights reserved in parchment.
+            </div>
+<div class="flex gap-4">
+<a class="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">The Scroll</a>
+<a class="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Ink</a>
+<a class="font-caption text-caption text-on-surface-variant hover:text-primary transition-colors" href="#">Librarian Guild</a>
+</div>
+</footer>
+</div>
+</body></html>
