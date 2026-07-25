@@ -53,5 +53,14 @@ namespace MyApp.Namespace
         }
 
 
+
+        [HttpGet("stats-by-year")]
+        public async Task<IActionResult> StatsByYear()
+        {
+            var results = await _logRepo.StatsByYear();
+            return Ok(results);
+        }
+
+
     }
 }

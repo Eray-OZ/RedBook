@@ -1,7 +1,10 @@
 ﻿using api.Application.DTOs.ReadingLog;
+using api.Application.DTOs.Statistic;
 using api.Core.Entities;
+using api.Core.Enums;
 using api.Core.Interfaces;
 using api.Data.Context;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 
 namespace api.Data.Repository;
@@ -43,4 +46,21 @@ public class ReadingLogRepo : IReadingLogRepo
 
         return logEntity;    
     }
+
+
+    public async Task<List<StatsByYearDto>> StatsByYear()
+    {
+        return await _context.ReadingLogs
+                        .Where(r => r.FinishDate.HasValue && r.Status == ReadingStatus.Finished)
+                        .GroupBy(r => r.FinishDate.Value.Year)
+                        .Select(g => new StatsByYearDto
+                        {
+                            Year = g.Key,
+                            ReadPages = g.Sum(x => x.ReadPages.Value),
+                            ReadBooks = g.Count()
+                        })
+                        .ToListAsync();
+    }
+
+  
 }
