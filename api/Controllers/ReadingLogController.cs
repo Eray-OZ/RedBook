@@ -43,5 +43,15 @@ namespace MyApp.Namespace
 
 
 
+        [HttpPut]
+        [Route("{id}")]
+        public async Task<IActionResult> Mark([FromRoute] string id, [FromBody] MarkLogDto logDto)
+        {
+            var guid = Guid.Parse(id);
+            var logEntity = await _logRepo.MarkAsync(guid, logDto);
+            return Ok(logEntity);
+        }
+
+
     }
 }

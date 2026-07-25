@@ -10,6 +10,7 @@ public static class LogMapper
     {
         return new GetLogDto
         {
+            Id = log.Id,
             BookName = log.Book.Title,
             ItemType = log.Book.ItemType,
             Status = log.Status,
@@ -17,6 +18,7 @@ public static class LogMapper
             FinishDate = log.FinishDate,
             ReadPages = log.ReadPages,
             Rating = log.Rating,
+            ReviewNotes = log.ReviewNotes,
             IsReRead = log.IsReRead
         };
     }

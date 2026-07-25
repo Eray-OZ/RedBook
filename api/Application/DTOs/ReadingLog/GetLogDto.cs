@@ -5,6 +5,7 @@ namespace api.Application.DTOs.ReadingLog;
 
 public class GetLogDto
 {
+    public Guid Id { get; set; }
     public required string BookName { get; set; }
     public ItemType ItemType { get; set;}
     public ReadingStatus Status { get; set; }

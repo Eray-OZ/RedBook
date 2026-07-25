@@ -27,4 +27,20 @@ public class ReadingLogRepo : IReadingLogRepo
         await _context.SaveChangesAsync();
         return logEntity;
     }
+
+
+    public async Task<ReadingLog?> MarkAsync(Guid id, MarkLogDto logDto)
+    {   
+        var logEntity = await _context.ReadingLogs.FirstOrDefaultAsync(x => x.Id == id);
+        if (logEntity == null) { return null; }
+
+        logEntity.Status = logDto.Status;
+        logEntity.FinishDate = logDto.FinishDate;
+        logEntity.ReadPages = logDto.ReadPages;
+        logEntity.Rating = logDto.Rating;
+        logEntity.ReviewNotes = logDto.ReviewNotes;
+        await _context.SaveChangesAsync();
+
+        return logEntity;    
+    }
 }
