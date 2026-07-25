@@ -1,4 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.Text.Json.Serialization;
+using api.Application.DTOs.Author;
 using api.Core.Entities;
 using api.Core.Enums;
 
@@ -17,6 +19,5 @@ public class CreateBookDto
     public string? GoogleBooksId { get; set; }
     public string? Isbn { get; set; }
     public string? CoverImageUrl { get; set; }
-    [Required]
-    public required AuthorEntity Author { get; set; }
+    public required CreateAuthorDto AuthorDto { get; set; }
 }

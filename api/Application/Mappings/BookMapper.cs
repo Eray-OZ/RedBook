@@ -18,7 +18,7 @@ public static class BookMapper
             GoogleBooksId = bookDto.GoogleBooksId,
             Isbn = bookDto.Isbn,
             CoverImageUrl = bookDto.CoverImageUrl,
-            Author = bookDto.Author
+            Author = bookDto.AuthorDto.ToAuthorFromCreateDto()
         };
     }
 

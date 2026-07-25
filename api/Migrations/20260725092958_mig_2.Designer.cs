@@ -12,8 +12,8 @@ using api.Data.Context;
 namespace api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260723201155_mig_3")]
-    partial class mig_3
+    [Migration("20260725092958_mig_2")]
+    partial class mig_2
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -114,7 +114,7 @@ namespace api.Migrations
                     b.Property<float>("Rating")
                         .HasColumnType("float");
 
-                    b.Property<int>("ReadPages")
+                    b.Property<int?>("ReadPages")
                         .HasColumnType("int");
 
                     b.Property<string>("ReviewNotes")

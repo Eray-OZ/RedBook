@@ -22,6 +22,7 @@ options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 
 
 builder.Services.AddScoped<IBookRepo, BookRepo>();
+builder.Services.AddScoped<IReadingLogRepo, ReadingLogRepo>();
 
 builder.Services.AddHttpClient<GoogleBooksService>();
 
@@ -37,6 +38,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors();
 
 app.MapControllers();
 

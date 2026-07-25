@@ -3,5 +3,7 @@
 public enum ItemType
 {
     Book = 0,
-    Comic = 1
+    Comic = 1,
+    AudioBook = 2,
+    Other = 3
 }

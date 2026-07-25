@@ -111,7 +111,7 @@ namespace api.Migrations
                     b.Property<float>("Rating")
                         .HasColumnType("float");
 
-                    b.Property<int>("ReadPages")
+                    b.Property<int?>("ReadPages")
                         .HasColumnType("int");
 
                     b.Property<string>("ReviewNotes")

@@ -1,12 +1,12 @@
-﻿using api.Core.Entities.Common;
+﻿using api.Core.Entities;
 using api.Core.Enums;
 
-namespace api.Core.Entities;
+namespace api.Application.DTOs.ReadingLog;
 
-public class ReadingLog : BaseEntity
+public class GetLogDto
 {
-    public Guid BookId { get; set; }
-    public required BookEntity Book { get; set; }
+    public required string BookName { get; set; }
+    public ItemType ItemType { get; set;}
     public ReadingStatus Status { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? FinishDate { get; set; }

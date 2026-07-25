@@ -1,4 +1,5 @@
-﻿using api.Core.Entities.Common;
+﻿using System.Text.Json.Serialization;
+using api.Core.Entities.Common;
 using api.Core.Enums;
 
 namespace api.Core.Entities;
@@ -13,6 +14,8 @@ public class BookEntity : BaseEntity
     public string? Isbn { get; set; }
     public string? CoverImageUrl { get; set; }
     public Guid AuthorId { get; set; }
+    [JsonIgnore]
     public AuthorEntity? Author { get; set; }
-    public ICollection<ReadingLog> ReadingLogs { get; set; } = new List<ReadingLog>();
+    [JsonIgnore]
+    public ICollection<ReadingLog>? ReadingLogs { get; set; } = new List<ReadingLog>();
 }

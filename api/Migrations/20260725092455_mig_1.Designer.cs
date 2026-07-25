@@ -12,7 +12,7 @@ using api.Data.Context;
 namespace api.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260723122727_mig_1")]
+    [Migration("20260725092455_mig_1")]
     partial class mig_1
     {
         /// <inheritdoc />
@@ -41,7 +41,7 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
@@ -83,7 +83,7 @@ namespace api.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
@@ -108,10 +108,13 @@ namespace api.Migrations
                     b.Property<DateTime?>("FinishDate")
                         .HasColumnType("datetime(6)");
 
-                    b.Property<int>("Rating")
-                        .HasColumnType("int");
+                    b.Property<bool>("IsReRead")
+                        .HasColumnType("tinyint(1)");
 
-                    b.Property<int>("ReadPages")
+                    b.Property<float>("Rating")
+                        .HasColumnType("float");
+
+                    b.Property<int?>("ReadPages")
                         .HasColumnType("int");
 
                     b.Property<string>("ReviewNotes")
@@ -123,7 +126,7 @@ namespace api.Migrations
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<DateTime>("UpdatedAt")
+                    b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime(6)");
 
                     b.HasKey("Id");
