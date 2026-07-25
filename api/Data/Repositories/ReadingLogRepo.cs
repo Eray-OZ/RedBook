@@ -62,5 +62,19 @@ public class ReadingLogRepo : IReadingLogRepo
                         .ToListAsync();
     }
 
+
+
+    public async Task<List<StatsTypeDto>> StatsType()
+    {
+        return await _context.ReadingLogs
+                    .Include(r => r.Book)
+                    .GroupBy(r => r.Book.ItemType)
+                    .Select(g => new StatsTypeDto
+                    {
+                        ItemType = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToListAsync();
+    }
   
 }
