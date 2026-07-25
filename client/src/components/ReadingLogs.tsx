@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import type { ReadingLog, CreateLogDto, MarkLogDto, ReadingStatus, ItemType } from '../types/book';
+import React, { useState, useEffect } from 'react';
+import type { ReadingLog, CreateLogDto, MarkLogDto, ReadingStatus, ItemType, StatsByYear, StatsType } from '../types/book';
 import { ReadingLogService } from '../services/api';
 import { PlusCircle, Star, Calendar, FileText, CheckCircle2, RotateCcw, Edit3, X, Link as LinkIcon, Hash } from 'lucide-react';
 
@@ -13,6 +13,10 @@ export const ReadingLogs: React.FC<ReadingLogsProps> = ({ logs, onRefreshLogs, a
   const [filterStatus, setFilterStatus] = useState<string>('ALL');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [editingLog, setEditingLog] = useState<ReadingLog | null>(null);
+
+  // Statistics API State
+  const [statsByYear, setStatsByYear] = useState<StatsByYear[]>([]);
+  const [statsType, setStatsType] = useState<StatsType[]>([]);
 
   // New Log Form State
   const [title, setTitle] = useState('');
@@ -37,14 +41,83 @@ export const ReadingLogs: React.FC<ReadingLogsProps> = ({ logs, onRefreshLogs, a
   const [reviewNotes, setReviewNotes] = useState<string>('');
   const [isUpdating, setIsUpdating] = useState(false);
 
+  // Fetch Statistics APIs
+  const fetchStatistics = async () => {
+    const [yearRes, typeRes] = await Promise.all([
+      ReadingLogService.getStatsByYear(),
+      ReadingLogService.getStatsType(),
+    ]);
+    setStatsByYear(yearRes.stats);
+    setStatsType(typeRes.stats);
+  };
+
+  useEffect(() => {
+    fetchStatistics();
+  }, [logs]);
+
   const filteredLogs = logs.filter(log => {
     if (filterStatus === 'ALL') return true;
     return log.status.toUpperCase() === filterStatus.toUpperCase();
   });
 
   const readingCount = logs.filter(l => l.status === 'Reading').length;
-  const finishedCount = logs.filter(l => l.status === 'Finished').length;
-  const totalPagesRead = logs.reduce((sum, l) => sum + (l.readPages || 0), 0);
+  const finishedLogsCount = logs.filter(l => l.status === 'Finished').length;
+  const logsPagesCount = logs.reduce((sum, l) => sum + (l.readPages || 0), 0);
+
+  // Derive total read books and pages from stats-by-year API (or fallback)
+  const totalReadBooksFromApi = statsByYear.reduce((sum, s) => sum + s.readBooks, 0);
+  const totalReadPagesFromApi = statsByYear.reduce((sum, s) => sum + s.readPages, 0);
+
+  const displayReadBooks = totalReadBooksFromApi > 0 ? totalReadBooksFromApi : finishedLogsCount;
+  const displayReadPages = totalReadPagesFromApi > 0 ? totalReadPagesFromApi : logsPagesCount;
+
+  // Format Distribution (Stats Type) Calculations
+  const formatTotalCount = statsType.reduce((sum, s) => sum + s.count, 0) || 1;
+  const bookCount = statsType.find(s => s.itemType === 'Book')?.count || 0;
+  const comicCount = statsType.find(s => s.itemType === 'Comic')?.count || 0;
+  const audioCount = statsType.find(s => s.itemType === 'AudioBook')?.count || 0;
+  const otherCount = statsType.find(s => s.itemType === 'Other')?.count || 0;
+
+  const bookPct = Math.round((bookCount / formatTotalCount) * 100);
+  const comicPct = Math.round((comicCount / formatTotalCount) * 100);
+  const audioPct = Math.round((audioCount / formatTotalCount) * 100);
+  const otherPct = Math.max(0, 100 - bookPct - comicPct - audioPct);
+
+  // Donut SVG Stroke Offsets
+  const CIRCUMFERENCE = 251.2;
+  const bookDashOffset = CIRCUMFERENCE * (1 - bookPct / 100);
+  const comicDashOffset = CIRCUMFERENCE * (1 - comicPct / 100);
+  const audioDashOffset = CIRCUMFERENCE * (1 - audioPct / 100);
+  const otherDashOffset = CIRCUMFERENCE * (1 - otherPct / 100);
+
+  const comicRotation = -90 + (bookPct / 100) * 360;
+  const audioRotation = -90 + ((bookPct + comicPct) / 100) * 360;
+  const otherRotation = -90 + ((bookPct + comicPct + audioPct) / 100) * 360;
+
+  // Yearly Activity Chart Math (Extremely spacious vertical view)
+  const activeYearStats = statsByYear.length > 0 ? statsByYear : [
+    { year: 2023, readPages: 4200, readBooks: 12 },
+    { year: 2024, readPages: 7800, readBooks: 20 },
+    { year: 2025, readPages: 11200, readBooks: 32 },
+    { year: 2026, readPages: 14205, readBooks: 42 },
+  ];
+
+  const maxPagesValue = Math.max(...activeYearStats.map(s => s.readPages), 100);
+  const chartPoints = activeYearStats.map((item, idx) => {
+    const totalCount = activeYearStats.length;
+    const x = totalCount === 1 ? 500 : (idx / (totalCount - 1)) * 840 + 80;
+    const y = 350 - (item.readPages / maxPagesValue) * 270;
+    return { x, y, year: item.year, pages: item.readPages, books: item.readBooks };
+  });
+
+  const linePathD = chartPoints.length === 1
+    ? `M 500 ${chartPoints[0].y}`
+    : `M ${chartPoints[0].x} ${chartPoints[0].y} ` + chartPoints.slice(1).map(p => `L ${p.x} ${p.y}`).join(' ');
+
+  const areaPathD = chartPoints.length === 1
+    ? `M 500 ${chartPoints[0].y} L 500 370 Z`
+    : `${linePathD} L ${chartPoints[chartPoints.length - 1].x} 370 L ${chartPoints[0].x} 370 Z`;
+
 
   const handleCreateLog = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -173,29 +246,31 @@ export const ReadingLogs: React.FC<ReadingLogsProps> = ({ logs, onRefreshLogs, a
       <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-8">
         {/* Year in Review Stats (Spans 8 cols on desktop) */}
         <section className="col-span-1 md:col-span-8 grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-          {/* Stat Card 1 */}
+          {/* Stat Card 1: Okunan Kitap */}
           <div className="bg-primary-container border-2 border-on-background rounded-lg p-6 shadow-brutal flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1 transition-transform">
             <div className="absolute -right-4 -top-4 opacity-20 transform rotate-12 group-hover:rotate-45 transition-transform duration-500">
               <span className="material-symbols-outlined text-8xl">menu_book</span>
             </div>
             <h3 className="font-headline-md text-headline-md text-on-primary-container mb-1 z-10">Okunan Kitap</h3>
-            <div className="font-display-lg text-[56px] leading-none text-on-primary-container mt-4 z-10">{finishedCount}</div>
-            <p className="font-label-md text-label-md text-on-primary-container mt-2 z-10">+12 geçen yıla göre</p>
+            <div className="font-display-lg text-[56px] leading-none text-on-primary-container mt-4 z-10">
+              {displayReadBooks}
+            </div>
+            <p className="font-label-md text-label-md text-on-primary-container mt-2 z-10">Toplam tamamlanan eser</p>
           </div>
 
-          {/* Stat Card 2 */}
+          {/* Stat Card 2: Okunan Sayfa */}
           <div className="bg-secondary-container border-2 border-on-background rounded-lg p-6 shadow-brutal flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1 transition-transform">
             <div className="absolute -right-2 -bottom-4 opacity-20 transform -rotate-12 group-hover:-rotate-45 transition-transform duration-500">
               <span className="material-symbols-outlined text-8xl">auto_stories</span>
             </div>
             <h3 className="font-headline-md text-headline-md text-on-secondary-container mb-1 z-10">Okunan Sayfa</h3>
             <div className="font-display-lg text-[48px] leading-tight text-on-secondary-container mt-4 z-10">
-              {totalPagesRead.toLocaleString('tr-TR')}
+              {displayReadPages.toLocaleString('tr-TR')}
             </div>
             <p className="font-label-md text-label-md text-on-secondary-container mt-2 z-10">Harika bir maraton!</p>
           </div>
 
-          {/* Stat Card 3 */}
+          {/* Stat Card 3: Devam Eden */}
           <div className="bg-tertiary-container border-2 border-on-background rounded-lg p-6 shadow-brutal flex flex-col justify-between relative overflow-hidden group hover:-translate-y-1 transition-transform">
             <div className="absolute right-0 top-1/2 -translate-y-1/2 opacity-20 transform rotate-90 group-hover:scale-110 transition-transform duration-500">
               <span className="material-symbols-outlined text-8xl">local_fire_department</span>
@@ -215,35 +290,113 @@ export const ReadingLogs: React.FC<ReadingLogsProps> = ({ logs, onRefreshLogs, a
           <div className="flex-1 flex flex-col items-center justify-center relative">
             <svg className="w-36 h-36 transform -rotate-90 filter drop-shadow-[2px_2px_0px_#1e1c10]" viewBox="0 0 100 100">
               <circle cx="50" cy="50" fill="none" r="40" stroke="#e9e2d0" strokeWidth="16"></circle>
-              <circle className="animate-draw" cx="50" cy="50" fill="none" r="40" stroke="#9a4600" strokeDasharray="251.2" strokeDashoffset="100.48" strokeLinecap="round" strokeWidth="16"></circle>
-              <circle className="animate-draw" cx="50" cy="50" fill="none" r="40" stroke="#006970" strokeDasharray="251.2" strokeDashoffset="188.4" strokeLinecap="round" strokeWidth="16" style={{ animationDelay: '0.5s' }} transform="rotate(216 50 50)"></circle>
-              <circle className="animate-draw" cx="50" cy="50" fill="none" r="40" stroke="#77574d" strokeDasharray="251.2" strokeDashoffset="213.52" strokeLinecap="round" strokeWidth="16" style={{ animationDelay: '1s' }} transform="rotate(306 50 50)"></circle>
+
+              {/* Book Slice */}
+              {bookPct > 0 && (
+                <circle
+                  className="animate-draw"
+                  cx="50"
+                  cy="50"
+                  fill="none"
+                  r="40"
+                  stroke="#9a4600"
+                  strokeDasharray={`${CIRCUMFERENCE}`}
+                  strokeDashoffset={`${bookDashOffset}`}
+                  strokeLinecap="round"
+                  strokeWidth="16"
+                ></circle>
+              )}
+
+              {/* Comic Slice */}
+              {comicPct > 0 && (
+                <circle
+                  className="animate-draw"
+                  cx="50"
+                  cy="50"
+                  fill="none"
+                  r="40"
+                  stroke="#006970"
+                  strokeDasharray={`${CIRCUMFERENCE}`}
+                  strokeDashoffset={`${comicDashOffset}`}
+                  strokeLinecap="round"
+                  strokeWidth="16"
+                  style={{ animationDelay: '0.3s' }}
+                  transform={`rotate(${comicRotation} 50 50)`}
+                ></circle>
+              )}
+
+              {/* AudioBook Slice */}
+              {audioPct > 0 && (
+                <circle
+                  className="animate-draw"
+                  cx="50"
+                  cy="50"
+                  fill="none"
+                  r="40"
+                  stroke="#77574d"
+                  strokeDasharray={`${CIRCUMFERENCE}`}
+                  strokeDashoffset={`${audioDashOffset}`}
+                  strokeLinecap="round"
+                  strokeWidth="16"
+                  style={{ animationDelay: '0.6s' }}
+                  transform={`rotate(${audioRotation} 50 50)`}
+                ></circle>
+              )}
+
+              {/* Other Slice */}
+              {otherPct > 0 && (
+                <circle
+                  className="animate-draw"
+                  cx="50"
+                  cy="50"
+                  fill="none"
+                  r="40"
+                  stroke="#c8a195"
+                  strokeDasharray={`${CIRCUMFERENCE}`}
+                  strokeDashoffset={`${otherDashOffset}`}
+                  strokeLinecap="round"
+                  strokeWidth="16"
+                  style={{ animationDelay: '0.9s' }}
+                  transform={`rotate(${otherRotation} 50 50)`}
+                ></circle>
+              )}
+
               <circle cx="50" cy="50" fill="#fff9eb" r="26" stroke="#1e1c10" strokeWidth="2"></circle>
-              <text fill="#1e1c10" fontFamily="Literata" fontSize="14" fontWeight="bold" textAnchor="middle" transform="rotate(90 50 50)" x="50" y="55">%100</text>
+              <text fill="#1e1c10" fontFamily="Literata" fontSize="13" fontWeight="bold" textAnchor="middle" transform="rotate(90 50 50)" x="50" y="55">%100</text>
             </svg>
 
+            {/* Legend */}
             <div className="mt-4 w-full space-y-2">
-              <div className="flex items-center justify-between font-label-md text-label-md">
+              <div className="flex items-center justify-between font-label-md text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-primary border border-on-background"></div>
-                  <span>Basılı Kitap</span>
+                  <span>Basılı Kitap ({bookCount})</span>
                 </div>
-                <span>%60</span>
+                <span className="font-bold">%{bookPct}</span>
               </div>
-              <div className="flex items-center justify-between font-label-md text-label-md">
+              <div className="flex items-center justify-between font-label-md text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-secondary border border-on-background"></div>
-                  <span>E-Kitap</span>
+                  <span>Çizgi Roman ({comicCount})</span>
                 </div>
-                <span>%25</span>
+                <span className="font-bold">%{comicPct}</span>
               </div>
-              <div className="flex items-center justify-between font-label-md text-label-md">
+              <div className="flex items-center justify-between font-label-md text-xs">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 rounded-full bg-tertiary border border-on-background"></div>
-                  <span>Sesli Kitap</span>
+                  <span>Sesli Kitap ({audioCount})</span>
                 </div>
-                <span>%15</span>
+                <span className="font-bold">%{audioPct}</span>
               </div>
+              {otherCount > 0 && (
+                <div className="flex items-center justify-between font-label-md text-xs">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-tertiary-container border border-on-background"></div>
+                    <span>Diğer ({otherCount})</span>
+                  </div>
+                  <span className="font-bold">%{otherPct}</span>
+                </div>
+              )}
             </div>
           </div>
         </section>
@@ -252,34 +405,84 @@ export const ReadingLogs: React.FC<ReadingLogsProps> = ({ logs, onRefreshLogs, a
         <section className="col-span-1 md:col-span-12 bg-surface-container-low border-2 border-on-background rounded-lg p-6 shadow-brutal">
           <div className="flex justify-between items-center border-b-2 border-on-background pb-3 mb-6">
             <div>
-              <h3 className="font-headline-md text-headline-md text-on-background">Okuma Aktivitesi</h3>
-              <p className="font-caption text-caption text-on-surface-variant">Sayfa/Hafta Dağılımı</p>
+              <h3 className="font-headline-md text-headline-md text-on-background">Okuma Aktivitesi (Yıllara Göre)</h3>
+              <p className="font-caption text-caption text-on-surface-variant">Yıl / Okunan Sayfa Yıllık Dağılım Grafiği (`GET /api/logs/stats-by-year`)</p>
             </div>
             <div className="bg-surface border-2 border-on-background rounded-full p-2 shadow-[2px_2px_0px_0px_#1e1c10]">
               <span className="material-symbols-outlined text-primary block">trending_up</span>
             </div>
           </div>
-          <div className="w-full h-44 relative overflow-hidden rounded-lg border-2 border-on-background bg-surface-bright">
-            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#1e1c10 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
-            <svg className="w-full h-full preserve-3d" preserveAspectRatio="none" viewBox="0 0 800 200">
-              <path d="M 0 200 L 0 150 Q 100 120 200 160 T 400 90 T 600 140 T 800 50 L 800 200 Z" fill="#8df2fc" opacity="0.5"></path>
-              <path className="filter drop-shadow-[2px_4px_0px_#1e1c10]" d="M 0 150 Q 100 120 200 160 T 400 90 T 600 140 T 800 50" fill="none" stroke="#006970" strokeLinecap="round" strokeLinejoin="round" strokeWidth="6"></path>
-              <circle cx="100" cy="135" fill="#fff9eb" r="7" stroke="#1e1c10" strokeWidth="3"></circle>
-              <circle cx="200" cy="160" fill="#fff9eb" r="7" stroke="#1e1c10" strokeWidth="3"></circle>
-              <circle cx="300" cy="125" fill="#fff9eb" r="7" stroke="#1e1c10" strokeWidth="3"></circle>
-              <circle cx="400" cy="90" fill="#fff9eb" r="7" stroke="#1e1c10" strokeWidth="3"></circle>
-              <circle cx="500" cy="115" fill="#fff9eb" r="7" stroke="#1e1c10" strokeWidth="3"></circle>
-              <circle cx="600" cy="140" fill="#fff9eb" r="7" stroke="#1e1c10" strokeWidth="3"></circle>
-              <circle cx="700" cy="95" fill="#fff9eb" r="7" stroke="#1e1c10" strokeWidth="3"></circle>
-              <circle cx="800" cy="50" fill="#fff9eb" r="7" stroke="#1e1c10" strokeWidth="3"></circle>
+
+          <div className="w-full h-[500px] relative overflow-hidden rounded-lg border-2 border-on-background bg-surface-bright p-4">
+            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#1e1c10 1px, transparent 1px)', backgroundSize: '28px 28px' }}></div>
+            
+            <svg className="w-full h-full preserve-3d" preserveAspectRatio="none" viewBox="0 0 1000 440">
+              {/* Grid Lines */}
+              {[0.25, 0.5, 0.75, 1].map((ratio, i) => {
+                const yVal = 350 - ratio * 270;
+                const pageVal = Math.round(maxPagesValue * ratio);
+                return (
+                  <g key={i}>
+                    <line x1="60" y1={yVal} x2="940" y2={yVal} stroke="#1e1c10" strokeDasharray="6 6" strokeOpacity="0.15" strokeWidth="1.5" />
+                    <text x="50" y={yVal + 4} fill="#1e1c10" opacity="0.4" fontFamily="Plus Jakarta Sans" fontSize="11" fontWeight="bold" textAnchor="end">
+                      {pageVal.toLocaleString('tr-TR')}
+                    </text>
+                  </g>
+                );
+              })}
+
+              {/* Filled Area */}
+              <path d={areaPathD} fill="#8df2fc" opacity="0.45"></path>
+              
+              {/* Line */}
+              <path className="filter drop-shadow-[2px_4px_0px_#1e1c10]" d={linePathD} fill="none" stroke="#006970" strokeLinecap="round" strokeLinejoin="round" strokeWidth="6"></path>
+
+              {/* Interactive Points & Page Labels */}
+              {chartPoints.map((pt, i) => (
+                <g key={i}>
+                  <circle
+                    cx={pt.x}
+                    cy={pt.y}
+                    fill="#fff9eb"
+                    r="10"
+                    stroke="#1e1c10"
+                    strokeWidth="3.5"
+                  />
+                  {/* Text Badge background */}
+                  <rect
+                    x={pt.x - 50}
+                    y={pt.y - 34}
+                    width="100"
+                    height="24"
+                    rx="12"
+                    fill="#1e1c10"
+                  />
+                  <text
+                    x={pt.x}
+                    y={pt.y - 18}
+                    fill="#fff9eb"
+                    fontFamily="Plus Jakarta Sans"
+                    fontSize="11"
+                    fontWeight="bold"
+                    textAnchor="middle"
+                  >
+                    {pt.pages.toLocaleString('tr-TR')} syf
+                  </text>
+                </g>
+              ))}
             </svg>
-            <div className="absolute bottom-2 left-0 right-0 flex justify-between px-4 font-caption text-caption text-on-background bg-surface-bright/80 mx-2 rounded-full border border-on-background py-1">
-              <span>Oca</span>
-              <span>Mar</span>
-              <span>May</span>
-              <span>Tem</span>
-              <span>Eyl</span>
-              <span>Kas</span>
+
+            {/* Dynamic Year Labels on X-axis */}
+            <div className="absolute bottom-4 left-0 right-0 flex justify-between px-10 font-caption text-caption text-on-background bg-surface-bright/95 mx-4 rounded-full border-2 border-on-background py-3 shadow-brutal-sm">
+              {chartPoints.map((pt, i) => (
+                <div key={i} className="font-bold flex items-center gap-2 text-sm">
+                  <span>📅</span>
+                  <span className="text-primary font-extrabold text-base">{pt.year}</span>
+                  <span className="text-xs font-medium text-on-surface-variant">
+                    {pt.books} kitap
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </section>
@@ -420,7 +623,7 @@ export const ReadingLogs: React.FC<ReadingLogsProps> = ({ logs, onRefreshLogs, a
               Filtrenize uygun okuma günlüğü bulunamadı. Yeni bir günlük ekleyerek takibe başlayın.
             </p>
             <button
-              onClick={() => setShowCreateModal(false)}
+              onClick={() => setShowCreateModal(true)}
               className="py-2.5 px-6 bg-primary text-on-primary border-2 border-on-background rounded-lg font-label-md text-sm font-bold shadow-brutal-sm hover:translate-y-0.5 active:translate-y-1 active:shadow-none transition-all"
             >
               Yeni Günlük Oluştur

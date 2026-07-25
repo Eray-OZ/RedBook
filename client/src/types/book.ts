@@ -81,3 +81,22 @@ export interface MarkLogDto {
   rating: number;
   reviewNotes?: string;
 }
+
+export interface StatsByYear {
+  year: number;
+  readPages: number;
+  readBooks: number;
+}
+
+export interface StatsType {
+  itemType: ItemType;
+  count: number;
+}
+
+export function normalizeItemType(val: any): ItemType {
+  if (val === 0 || val === '0' || String(val).toLowerCase() === 'book') return 'Book';
+  if (val === 1 || val === '1' || String(val).toLowerCase() === 'comic') return 'Comic';
+  if (val === 2 || val === '2' || String(val).toLowerCase() === 'audiobook') return 'AudioBook';
+  return 'Other';
+}
+

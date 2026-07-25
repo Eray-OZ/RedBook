@@ -1,5 +1,5 @@
 import axios from 'axios';
-import type { Book, CreateBookDto, GoogleBookSearchResult, ReadingLog, CreateLogDto, MarkLogDto } from '../types/book';
+import { type Book, type CreateBookDto, type GoogleBookSearchResult, type ReadingLog, type CreateLogDto, type MarkLogDto, type StatsByYear, type StatsType, normalizeItemType } from '../types/book';
 
 // Base client for API requests
 const API_BASE_URL = '/api';
@@ -315,5 +315,49 @@ export const ReadingLogService = {
       }
       throw error;
     }
+  },
+
+  // GET /api/logs/stats-by-year
+  async getStatsByYear(): Promise<{ stats: StatsByYear[]; isMock: boolean }> {
+    try {
+      const response = await apiClient.get<any[]>('/logs/stats-by-year');
+      const stats: StatsByYear[] = (response.data || []).map((item: any) => ({
+        year: Number(item.year ?? item.Year ?? 0),
+        readPages: Number(item.readPages ?? item.ReadPages ?? 0),
+        readBooks: Number(item.readBooks ?? item.ReadBooks ?? 0),
+      })).sort((a, b) => a.year - b.year);
+      return { stats, isMock: false };
+    } catch (error) {
+      console.warn('Backend StatsByYear API unavailable, using fallback mock stats:', error);
+      const fallbackStats: StatsByYear[] = [
+        { year: 2023, readPages: 4200, readBooks: 12 },
+        { year: 2024, readPages: 7800, readBooks: 20 },
+        { year: 2025, readPages: 11200, readBooks: 32 },
+        { year: 2026, readPages: 14205, readBooks: 42 },
+      ];
+      return { stats: fallbackStats, isMock: true };
+    }
+  },
+
+  // GET /api/logs/stats-type
+  async getStatsType(): Promise<{ stats: StatsType[]; isMock: boolean }> {
+    try {
+      const response = await apiClient.get<any[]>('/logs/stats-type');
+      const stats: StatsType[] = (response.data || []).map((item: any) => ({
+        itemType: normalizeItemType(item.itemType ?? item.ItemType),
+        count: Number(item.count ?? item.Count ?? 0),
+      }));
+      return { stats, isMock: false };
+    } catch (error) {
+      console.warn('Backend StatsType API unavailable, using fallback mock stats:', error);
+      const fallbackStats: StatsType[] = [
+        { itemType: 'Book', count: 24 },
+        { itemType: 'Comic', count: 10 },
+        { itemType: 'AudioBook', count: 6 },
+        { itemType: 'Other', count: 2 },
+      ];
+      return { stats: fallbackStats, isMock: true };
+    }
   }
 };
+
