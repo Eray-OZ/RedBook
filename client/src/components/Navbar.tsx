@@ -111,21 +111,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             Grand Archives
           </button>
 
-          {/* Add New Log */}
-          <button
-            onClick={() => setActiveTab('logs')}
-            className={`flex items-center gap-3 px-3 py-3 rounded-lg font-label-md text-label-md transition-all text-left ${
-              activeTab === 'add'
-                ? 'bg-primary text-on-primary border-2 border-on-background shadow-[2px_2px_0px_0px_var(--shadow-color)] active:scale-95 font-bold'
-                : 'text-on-tertiary-container hover:bg-surface-variant/50 hover:bg-primary-container/20 active:scale-95'
-            }`}
-          >
-            <span className="material-symbols-outlined text-xl">
-              add_circle
-            </span>
-            Add New Log
-          </button>
-
           {/* API Tester */}
           <button
             onClick={() => setActiveTab('tester')}
@@ -141,14 +126,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             API Tester
           </button>
         </div>
-
-        <button
-          onClick={() => setActiveTab('logs')}
-          className="w-full py-3 mb-2 bg-secondary text-on-secondary border-2 border-on-background rounded-lg font-label-md text-label-md shadow-brutal-sm hover:translate-y-0.5 hover:shadow-[2px_2px_0px_0px_var(--shadow-color)] active:translate-y-1 active:translate-x-1 active:shadow-none transition-all flex items-center justify-center gap-2"
-        >
-          <span className="material-symbols-outlined text-xl">history_edu</span>
-          Add New Log
-        </button>
 
         <div className="mt-auto border-t-2 border-on-background pt-3 flex items-center justify-between px-1 text-xs text-on-tertiary-container font-caption">
           <span className="flex items-center gap-1.5 font-medium">
@@ -196,13 +173,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             title="Grand Archives"
           >
             <span className="material-symbols-outlined text-xl block">museum</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('logs')}
-            className={`p-2 rounded border border-on-background ${activeTab === 'add' ? 'bg-primary text-on-primary' : 'text-primary bg-surface'}`}
-            title="Add New Log"
-          >
-            <span className="material-symbols-outlined text-xl block">add_circle</span>
           </button>
           <button
             onClick={() => setActiveTab('tester')}

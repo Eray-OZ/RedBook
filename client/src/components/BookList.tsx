@@ -56,7 +56,7 @@ export const BookList: React.FC<BookListProps> = ({
             className="py-2.5 px-4 bg-primary text-on-primary border-2 border-on-background rounded-lg font-label-md text-label-md shadow-brutal-sm hover:translate-y-0.5 active:translate-y-1 active:shadow-none transition-all flex items-center gap-2"
           >
             <PlusCircle size={16} />
-            <span>Add New Log</span>
+            <span>Add New Book</span>
           </button>
         </div>
       </div>
@@ -204,7 +204,7 @@ export const BookList: React.FC<BookListProps> = ({
             className="bg-surface-variant/40 border-2 border-dashed border-on-background rounded-lg p-6 shadow-brutal-sm hover:bg-surface-variant flex flex-col items-center justify-center cursor-pointer transition-all group min-h-[160px]"
           >
             <span className="material-symbols-outlined text-4xl text-primary group-hover:scale-110 transition-transform mb-2">add_circle</span>
-            <h4 className="font-label-md text-label-md text-on-background text-center font-bold">Add New Log</h4>
+            <h4 className="font-label-md text-label-md text-on-background text-center font-bold">Add New Book</h4>
           </div>
         </section>
       ) : (
@@ -212,14 +212,14 @@ export const BookList: React.FC<BookListProps> = ({
           <BookOpen size={48} className="mx-auto text-primary mb-3" />
           <h3 className="font-headline-md text-headline-md text-on-background mb-2">No Books Found</h3>
           <p className="font-body-md text-on-surface-variant text-sm mb-6">
-            No books match your search criteria. You can add a new log to your collection.
+            No books match your search criteria. You can add a new book to your collection.
           </p>
           <button
             onClick={onNavigateToAdd}
             className="py-2.5 px-6 bg-primary text-on-primary border-2 border-on-background rounded-lg font-label-md text-sm font-bold shadow-brutal-sm hover:translate-y-0.5 active:translate-y-1 active:shadow-none transition-all flex items-center gap-2 mx-auto"
           >
             <PlusCircle size={16} />
-            <span>Add New Log</span>
+            <span>Add New Book</span>
           </button>
         </div>
       )}

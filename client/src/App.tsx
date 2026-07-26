@@ -7,7 +7,7 @@ import { ReadingLogs } from './components/ReadingLogs';
 import { ApiTester } from './components/ApiTester';
 import { BookService, ReadingLogService } from './services/api';
 import type { Book, CreateBookDto, ReadingLog } from './types/book';
-import { CheckCircle2, Info, AlertTriangle, Plus } from 'lucide-react';
+import { CheckCircle2, Info, AlertTriangle } from 'lucide-react';
 
 import { RedBookLogo } from './components/RedBookLogo';
 
@@ -156,15 +156,6 @@ export function App() {
           </div>
         </footer>
       </div>
-
-      {/* Floating Action Button (FAB) */}
-      <button
-        onClick={() => setActiveTab('logs')}
-        className="fixed bottom-8 right-8 z-50 w-14 h-14 bg-primary text-on-primary border-2 border-on-background rounded-full shadow-brutal flex items-center justify-center hover:translate-y-0.5 active:translate-y-1 active:shadow-none transition-all"
-        title="Add New Log"
-      >
-        <Plus className="w-7 h-7" />
-      </button>
 
       {/* Toast Notifications */}
       <div className="toast-container">
