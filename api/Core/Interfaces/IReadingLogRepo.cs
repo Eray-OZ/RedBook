@@ -11,4 +11,5 @@ public interface IReadingLogRepo
     Task<ReadingLog?> MarkAsync(Guid id, MarkLogDto logDto);
     Task<List<StatsByYearDto>> StatsByYear();
     Task<List<StatsTypeDto>> StatsType();
+    Task<List<StatsStatusDto>> StatsStatus();
 }

@@ -76,5 +76,18 @@ public class ReadingLogRepo : IReadingLogRepo
                     })
                     .ToListAsync();
     }
+
+
+    public async Task<List<StatsStatusDto>> StatsStatus()
+    {
+        return await _context.ReadingLogs
+                    .GroupBy(r => r.Status)
+                    .Select(g => new StatsStatusDto
+                    {
+                        Status = g.Key,
+                        Count = g.Count()
+                    })
+                    .ToListAsync();
+    }
   
 }

@@ -68,5 +68,13 @@ namespace MyApp.Namespace
             return Ok(results);
         }
 
+
+        [HttpGet("stats-status")]
+        public async Task<IActionResult> StatsStatus()
+        {
+            var results = await _logRepo.StatsStatus();
+            return Ok(results);
+        }
+
     }
 }
