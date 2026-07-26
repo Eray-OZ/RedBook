@@ -9,6 +9,8 @@ import { BookService, ReadingLogService } from './services/api';
 import type { Book, CreateBookDto, ReadingLog } from './types/book';
 import { CheckCircle2, Info, AlertTriangle, Plus } from 'lucide-react';
 
+import { RedBookLogo } from './components/RedBookLogo';
+
 export interface ToastMessage {
   id: string;
   type: 'success' | 'info' | 'warning';
@@ -140,8 +142,9 @@ export function App() {
 
         {/* Footer */}
         <footer className="w-full border-t-2 border-on-background flex flex-col md:flex-row justify-between items-center px-margin-desktop py-8 gap-gutter max-w-container-max mx-auto bg-surface-container-highest mt-12">
-          <div className="font-headline-md text-headline-md text-primary">
-            Red Book
+          <div className="font-headline-md text-headline-md text-primary flex items-center gap-3">
+            <RedBookLogo size="md" />
+            <span>Red Book</span>
           </div>
           <div className="font-caption text-caption text-on-surface text-center md:text-left">
             © 2026 Red Book. All rights reserved.

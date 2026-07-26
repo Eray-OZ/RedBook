@@ -7,7 +7,7 @@ interface ApiTesterProps {
   onRefreshHealth: () => void;
 }
 
-type EndpointKey = 'getBooks' | 'searchBooks' | 'createBook' | 'getLogs' | 'createLog' | 'markLog';
+type EndpointKey = 'getBooks' | 'searchBooks' | 'createBook' | 'getLogs' | 'createLog' | 'markLog' | 'statsStatus';
 
 export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth }) => {
   const [selectedEndpoint, setSelectedEndpoint] = useState<EndpointKey>('getBooks');
@@ -82,6 +82,10 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
           reviewNotes: "Reading status updated to Finished via API diagnostic test."
         };
         const res = await axios.put(`/api/logs/${logIdParam}`, samplePayload);
+        setStatusCode(res.status);
+        setTestResponse(res.data);
+      } else if (selectedEndpoint === 'statsStatus') {
+        const res = await axios.get('/api/logs/stats-status');
         setStatusCode(res.status);
         setTestResponse(res.data);
       }
@@ -248,6 +252,20 @@ export const ApiTester: React.FC<ApiTesterProps> = ({ isOnline, onRefreshHealth 
               <div className="flex items-center gap-2">
                 <span className="px-2 py-0.5 bg-secondary-container text-on-secondary-container border border-on-background rounded text-[10px]">PUT</span>
                 <span>/api/logs/&#123;id&#125;</span>
+              </div>
+            </button>
+
+            <button
+              onClick={() => setSelectedEndpoint('statsStatus')}
+              className={`w-full text-left p-3 rounded-lg border-2 border-on-background font-bold text-xs uppercase tracking-wider flex items-center justify-between transition-all ${
+                selectedEndpoint === 'statsStatus'
+                  ? 'bg-primary text-on-primary shadow-brutal-sm'
+                  : 'bg-surface-container-low text-on-background hover:bg-surface-variant'
+              }`}
+            >
+              <div className="flex items-center gap-2">
+                <span className="px-2 py-0.5 bg-secondary text-on-secondary border border-on-background rounded text-[10px]">GET</span>
+                <span>/api/logs/stats-status</span>
               </div>
             </button>
           </div>

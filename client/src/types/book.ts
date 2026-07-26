@@ -100,3 +100,16 @@ export function normalizeItemType(val: any): ItemType {
   return 'Other';
 }
 
+export interface StatsStatus {
+  status: ReadingStatus;
+  count: number;
+}
+
+export function normalizeReadingStatus(val: any): ReadingStatus {
+  if (val === 0 || val === '0' || String(val).toLowerCase() === 'reading') return 'Reading';
+  if (val === 1 || val === '1' || String(val).toLowerCase() === 'finished') return 'Finished';
+  if (val === 2 || val === '2' || String(val).toLowerCase() === 'dropped') return 'Dropped';
+  return 'Reading';
+}
+
+

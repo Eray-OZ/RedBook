@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import type { ReadingLog, CreateLogDto, MarkLogDto, ReadingStatus, ItemType, StatsByYear, StatsType } from '../types/book';
+import type { ReadingLog, CreateLogDto, MarkLogDto, ReadingStatus, ItemType, StatsByYear, StatsType, StatsStatus } from '../types/book';
 import { ReadingLogService } from '../services/api';
 import { PlusCircle, Star, Calendar, FileText, CheckCircle2, RotateCcw, Edit3, X, Link as LinkIcon, Hash } from 'lucide-react';
 
@@ -17,6 +17,7 @@ export const ReadingLogs: React.FC<ReadingLogsProps> = ({ logs, onRefreshLogs, a
   // Statistics API State
   const [statsByYear, setStatsByYear] = useState<StatsByYear[]>([]);
   const [statsType, setStatsType] = useState<StatsType[]>([]);
+  const [statsStatus, setStatsStatus] = useState<StatsStatus[]>([]);
 
   // New Log Form State
   const [title, setTitle] = useState('');
@@ -43,12 +44,14 @@ export const ReadingLogs: React.FC<ReadingLogsProps> = ({ logs, onRefreshLogs, a
 
   // Fetch Statistics APIs
   const fetchStatistics = async () => {
-    const [yearRes, typeRes] = await Promise.all([
+    const [yearRes, typeRes, statusRes] = await Promise.all([
       ReadingLogService.getStatsByYear(),
       ReadingLogService.getStatsType(),
+      ReadingLogService.getStatsStatus(),
     ]);
     setStatsByYear(yearRes.stats);
     setStatsType(typeRes.stats);
+    setStatsStatus(statusRes.stats);
   };
 
   useEffect(() => {
@@ -64,12 +67,15 @@ export const ReadingLogs: React.FC<ReadingLogsProps> = ({ logs, onRefreshLogs, a
   const finishedLogsCount = logs.filter(l => l.status === 'Finished').length;
   const logsPagesCount = logs.reduce((sum, l) => sum + (l.readPages || 0), 0);
 
-  // Derive total read books and pages from stats-by-year API (or fallback)
+  // Derive total read books, pages, and in-progress count from stats APIs (or fallback)
   const totalReadBooksFromApi = statsByYear.reduce((sum, s) => sum + s.readBooks, 0);
   const totalReadPagesFromApi = statsByYear.reduce((sum, s) => sum + s.readPages, 0);
 
   const displayReadBooks = totalReadBooksFromApi > 0 ? totalReadBooksFromApi : finishedLogsCount;
   const displayReadPages = totalReadPagesFromApi > 0 ? totalReadPagesFromApi : logsPagesCount;
+
+  const readingStatusItem = statsStatus.find(s => s.status === 'Reading');
+  const displayReadingCount = readingStatusItem !== undefined ? readingStatusItem.count : readingCount;
 
   // Format Distribution (Stats Type) Calculations
   const formatTotalCount = statsType.reduce((sum, s) => sum + s.count, 0) || 1;
@@ -272,7 +278,7 @@ export const ReadingLogs: React.FC<ReadingLogsProps> = ({ logs, onRefreshLogs, a
               <span className="material-symbols-outlined text-8xl">local_fire_department</span>
             </div>
             <h3 className="font-headline-md text-headline-md text-on-tertiary-container mb-1 z-10">In Progress</h3>
-            <div className="font-display-lg text-[56px] leading-none text-on-tertiary-container mt-4 z-10">{readingCount}</div>
+            <div className="font-display-lg text-[56px] leading-none text-on-tertiary-container mt-4 z-10">{displayReadingCount}</div>
             <p className="font-label-md text-label-md text-on-tertiary-container mt-2 z-10">Active reading logs</p>
           </div>
         </section>

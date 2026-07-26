@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { type Book, type CreateBookDto, type GoogleBookSearchResult, type ReadingLog, type CreateLogDto, type MarkLogDto, type StatsByYear, type StatsType, normalizeItemType } from '../types/book';
+import { type Book, type CreateBookDto, type GoogleBookSearchResult, type ReadingLog, type CreateLogDto, type MarkLogDto, type StatsByYear, type StatsType, type StatsStatus, normalizeItemType, normalizeReadingStatus } from '../types/book';
 
 // Base client for API requests
 const API_BASE_URL = '/api';
@@ -358,6 +358,27 @@ export const ReadingLogService = {
       ];
       return { stats: fallbackStats, isMock: true };
     }
+  },
+
+  // GET /api/logs/stats-status
+  async getStatsStatus(): Promise<{ stats: StatsStatus[]; isMock: boolean }> {
+    try {
+      const response = await apiClient.get<any[]>('/logs/stats-status');
+      const stats: StatsStatus[] = (response.data || []).map((item: any) => ({
+        status: normalizeReadingStatus(item.status ?? item.Status),
+        count: Number(item.count ?? item.Count ?? 0),
+      }));
+      return { stats, isMock: false };
+    } catch (error) {
+      console.warn('Backend StatsStatus API unavailable, using fallback mock stats:', error);
+      const fallbackStats: StatsStatus[] = [
+        { status: 'Reading', count: 3 },
+        { status: 'Finished', count: 42 },
+        { status: 'Dropped', count: 1 },
+      ];
+      return { stats: fallbackStats, isMock: true };
+    }
   }
 };
+
 

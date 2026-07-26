@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sun, Moon } from 'lucide-react';
+import { RedBookLogo } from './RedBookLogo';
 
 export type TabType = 'library' | 'add' | 'search' | 'logs' | 'tester';
 
@@ -28,14 +29,10 @@ export const Navbar: React.FC<NavbarProps> = ({
       <nav className="hidden md:flex flex-col h-screen fixed left-0 top-0 w-64 border-r-2 border-on-background shadow-[6px_0px_0px_0px_var(--shadow-color)] p-4 gap-4 bg-tertiary-container z-40">
         <div className="flex items-center justify-between mb-4 mt-2 px-1">
           <div 
-            className="flex items-center gap-3 cursor-pointer"
+            className="flex items-center gap-3 cursor-pointer group"
             onClick={() => setActiveTab('logs')}
           >
-            <div className="w-10 h-10 bg-primary-container border-2 border-on-background rounded-full flex items-center justify-center shadow-brutal-sm shrink-0">
-              <span className="material-symbols-outlined text-on-primary-container" style={{ fontVariationSettings: "'FILL' 1" }}>
-                ink_pen
-              </span>
-            </div>
+            <RedBookLogo size="lg" className="group-hover:scale-105 transition-transform" />
             <div>
               <h1 className="font-headline-md text-headline-md text-on-tertiary-container leading-tight">Red Book</h1>
               <p className="font-caption text-caption text-on-tertiary-container opacity-80">Your Literary Journey</p>
@@ -168,7 +165,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           className="font-headline-lg-mobile text-headline-lg-mobile text-primary tracking-tighter cursor-pointer flex items-center gap-2"
           onClick={() => setActiveTab('logs')}
         >
-          <span className="material-symbols-outlined text-2xl">ink_pen</span>
+          <RedBookLogo size="sm" />
           Red Book
         </div>
         <div className="flex gap-2 items-center">
